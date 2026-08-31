@@ -576,6 +576,11 @@
             padding: 0 6px 4px 6px;
             background: #eae9e4;
             border-bottom: 3px solid #ffffff;
+            /* Il "ripiano" (sfondo + bordo bianco) si ferma dove finiscono i libri,
+               invece di occupare sempre l'intera colonna della griglia: così una
+               mensola con pochi libri si vede vuota, non piena. */
+            width: fit-content;
+            max-width: 100%;
         }
 
         /* DORSO DEL LIBRO */
@@ -1040,6 +1045,13 @@
            modale (overlay a schermo intero + sfondo scuro + tasto chiudi sempre visibile),
            altrimenti su portrait scorre via con la pagina e diventa introvabile. */
         @media (max-width: 768px) {
+            /* .top-bar diventa fixed e esce dal flusso: senza questo padding, qualsiasi
+               cosa segua nel DOM (statistiche, pulsante "Panoramica" di rientro da una
+               mensola, ecc.) risale sotto le icone fisse e ci si sovrappone. */
+            body {
+                padding-top: 68px;
+            }
+
             .top-bar {
                 position: fixed;
                 top: 8px;
