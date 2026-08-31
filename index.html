@@ -576,11 +576,6 @@
             padding: 0 6px 4px 6px;
             background: #eae9e4;
             border-bottom: 3px solid #ffffff;
-            /* Il "ripiano" (sfondo + bordo bianco) si ferma dove finiscono i libri,
-               invece di occupare sempre l'intera colonna della griglia: così una
-               mensola con pochi libri si vede vuota, non piena. */
-            width: fit-content;
-            max-width: 100%;
         }
 
         /* DORSO DEL LIBRO */
@@ -1854,6 +1849,17 @@
 
             mensolaDiv.appendChild(settoriDiv);
             container.appendChild(mensolaDiv);
+
+            // Riempimento visivo proporzionale alla capacità reale della mensola
+            // (stesso MAX_PAGINE_PER_MENSOLA usato per l'avviso "mensola piena" quando
+            // si aggiunge un libro), non più solo a "quanti libri entrano nel riquadro".
+            const paginePresentiMensola = libriOrdinati.reduce(
+                (tot, l) => tot + (pagineDaTaglia(l.pagineVisive) || l.numeroPagine || PAGINE_STIMA_DEFAULT), 0
+            );
+            const riempimento = libriOrdinati.length === 0
+                ? 0
+                : Math.min(1, paginePresentiMensola / MAX_PAGINE_PER_MENSOLA);
+            settoriDiv.style.width = (riempimento * 100) + "%";
 
             adattaLarghezzaDorsi(settoriDiv);
         }
