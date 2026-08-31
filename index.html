@@ -1,0 +1,2645 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crossing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #dcdbd7;
+            color: #333;
+            padding: 10px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+        }
+
+        /* BARRA STATISTICHE & AZIONI */
+        .top-bar {
+            max-width: 1200px;
+            margin: 0 auto 10px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stats-bar {
+            background: #2c3e50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            flex-grow: 1;
+        }
+
+        .stats-bar strong {
+            color: #2ecc71;
+        }
+
+        /* BOTTONE APRI FORM SEPARATO */
+        .btn-apri-form {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-apri-form:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        /* SEZIONE FILTRI */
+        .filtri-header-mobile {
+            display: none;
+        }
+
+        .filtri-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .filtri-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .filtro-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filtro-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .filtro-group input, .filtro-group select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.85rem;
+        }
+
+        /* PARETE KROSSING */
+        .parete-wrapper {
+            overflow: hidden;
+            position: relative;
+            border-radius: 6px;
+        }
+
+        .libreria-container {
+            width: max-content;
+            padding: 20px 20px 0 20px;
+            display: grid;
+            grid-template-columns: repeat(8, 130px);
+            grid-template-rows: repeat(7, 80px) 26px;
+            gap: 4px;
+            background: #eae9e4;
+            border-radius: 6px;
+            transform-origin: 0 0;
+            position: relative;
+        }
+
+        .pavimento {
+            grid-column: 1 / 9;
+            grid-row: 8;
+            margin: 0 -20px;
+            background: linear-gradient(180deg, #e7d3ba, #d9c2a0);
+            border-radius: 0 0 6px 6px;
+        }
+
+        /* LIBRERIA HIRO */
+        .hiro-wrapper {
+            background: #eae9e4;
+            border-radius: 6px;
+            padding: 12px;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .hiro-panoramica {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            aspect-ratio: 896 / 1200;
+            background: #eae9e4;
+            overflow: hidden;
+        }
+
+        .hiro-pavimento-scena {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 4.1%;
+            background: linear-gradient(180deg, #e7d3ba, #d9c2a0);
+        }
+
+        .hiro-mobile-scena {
+            position: absolute;
+            left: 24%;
+            right: 17%;
+            top: 50.3%;
+            bottom: 4.1%;
+            background: #a9b99a;
+            border-radius: 4px 4px 0 0;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
+        }
+
+        .hiro-mobile-interno {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 3.5%;
+            right: 3.5%;
+            background: #eae9e4;
+        }
+
+        .hiro-tavola-scena {
+            position: absolute;
+            left: 25.7%;
+            right: 18.7%;
+            height: 1.1%;
+            background: #7f9184;
+            z-index: 1;
+        }
+
+        #hiro-tavola-37 { bottom: 48.6%; }
+        #hiro-tavola-38 { bottom: 35.2%; }
+        #hiro-tavola-39 { bottom: 18.9%; }
+        #hiro-tavola-40 { bottom: 4.1%; }
+
+        .hiro-zona {
+            position: absolute;
+            display: flex;
+            align-items: flex-end;
+            gap: 1px;
+            cursor: zoom-in;
+        }
+
+        /* Zone misurate sull'illustrazione (896x1200): sinistra/larghezza/basso/altezza in percentuale */
+        #hiro-zona-37 { left: 29.7%; width: 27%; bottom: 48.6%; height: 13.1%; }
+        #hiro-zona-38 { left: 29.7%; width: 29%; bottom: 35.2%; height: 10.6%; }
+        #hiro-zona-39 { left: 50.2%; width: 27.9%; bottom: 18.9%; height: 12.7%; }
+        #hiro-zona-40 { left: 29.7%; width: 48.2%; bottom: 4.1%; height: 9.6%; }
+
+        .hiro-pianta-scena {
+            position: absolute;
+            right: 1.5%;
+            bottom: 4.1%;
+            width: 13%;
+        }
+
+        .hiro-pianta-scena svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .hiro-zona-libro {
+            flex: 0 0 auto;
+            align-self: flex-end;
+            border-radius: 1px 1px 0 0;
+        }
+
+        .hiro-zoom {
+            background: #eae9e4;
+            border-radius: 6px;
+            padding: 14px;
+        }
+
+        .hiro-ripiano {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            gap: 18px;
+            border-bottom: 6px solid #7f9184;
+            padding: 14px 10px 10px 40px;
+            min-height: 110px;
+            width: fit-content;
+            max-width: 100%;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .hiro-num-mensola {
+            position: absolute;
+            top: 6px;
+            left: 10px;
+            font-size: 0.7rem;
+            color: #9a988f;
+            font-weight: 700;
+        }
+
+        .hiro-pila-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hiro-decor-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            margin-bottom: 3px;
+        }
+
+        .hiro-pila {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hiro-libro-piatto {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-width: 0;
+            padding: 2px 10px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            box-shadow: inset 0 -2px 5px rgba(0,0,0,0.12);
+            cursor: pointer;
+        }
+
+        .hiro-libro-piatto-testo {
+            flex: 1;
+            min-width: 0;
+            white-space: normal;
+            text-align: center;
+            line-height: 1.15;
+            overflow: hidden;
+        }
+
+        .hiro-libro-piatto:first-child {
+            border-radius: 0 0 2px 2px;
+        }
+
+        .hiro-ripiano-verticale {
+            padding-left: 40px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .hiro-fila-verticale {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        /* Decorazioni segnaposto: sagome semplici, da rifinire in un secondo passaggio */
+        .hiro-decor-tartaruga {
+            width: 36px;
+            height: 24px;
+            background: #b9b29e;
+            border-radius: 50% 50% 45% 45%;
+            position: relative;
+        }
+
+        .hiro-decor-tartaruga::after {
+            content: "";
+            position: absolute;
+            top: -16px;
+            left: 9px;
+            width: 18px;
+            height: 18px;
+            background: #fdfaf0;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(253,250,240,0.7);
+        }
+
+        .hiro-decor-macchina {
+            width: 42px;
+            height: 20px;
+            background: #5c6b5e;
+            border-radius: 3px 3px 7px 7px;
+        }
+
+        .hiro-decor-casetta {
+            width: 44px;
+            height: 48px;
+            background: #dfe7e0;
+            border: 2px solid #8a9a8d;
+            border-top: none;
+            position: relative;
+        }
+
+        .hiro-decor-casetta::before {
+            content: "";
+            position: absolute;
+            top: -16px;
+            left: -2px;
+            width: 0;
+            height: 0;
+            border-left: 24px solid transparent;
+            border-right: 24px solid transparent;
+            border-bottom: 16px solid #8a9a8d;
+        }
+
+        .hiro-decor-studio {
+            width: 58px;
+            height: 44px;
+            background: #c98a5e;
+            border: 2px solid #7a4a2c;
+            border-radius: 2px;
+        }
+
+        .quadrante-hit {
+            background: transparent;
+            cursor: zoom-in;
+            border-radius: 3px;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .libreria-container:not(.vista-quadrante) .quadrante-hit {
+            pointer-events: auto;
+        }
+
+        .quadrante-hit:hover {
+            background: rgba(255,255,255,0.18);
+        }
+
+        .vista-scaffale {
+            display: none;
+            padding: 10px 20px 30px 20px;
+        }
+
+        .vista-scaffale.attiva {
+            display: block;
+        }
+
+        .vista-scaffale-titolo {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 16px;
+        }
+
+        .vista-scaffale-libri {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            align-items: flex-end;
+            gap: 10px;
+            background: #eae9e4;
+            border-bottom: 5px solid #ffffff;
+            border-radius: 4px;
+            padding: 16px 16px 6px 16px;
+            min-height: 260px;
+        }
+
+        .zoom-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 6px;
+            min-height: 32px;
+        }
+
+        .ricerca-fissa {
+            max-width: 420px;
+            margin: 0 auto 10px auto;
+        }
+
+        .ricerca-fissa input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #c8c7c2;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+        }
+
+        .scaffale-slot {
+            background: #eae9e4;
+            padding: 6px 6px 0 6px;
+            border-radius: 2px;
+            border: 2px solid #ffffff;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .decor-area {
+            grid-column: 1 / 6;
+            grid-row: 4 / 8;
+            display: flex;
+            align-items: flex-end;
+            gap: 48px;
+            padding: 0 10px 0 6px;
+        }
+
+        .decor-pianta {
+            width: 92px;
+            height: 62%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .decor-foglie {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4px;
+            padding-bottom: 2px;
+        }
+
+        .decor-foglie span {
+            width: 10px;
+            border-radius: 3px 3px 0 0;
+            background: #6b8e5a;
+        }
+
+        .decor-foglie span:nth-child(1) { height: 45%; background: #7ea36a; }
+        .decor-foglie span:nth-child(2) { height: 75%; background: #5c7a4a; }
+        .decor-foglie span:nth-child(3) { height: 100%; background: #4a6741; }
+        .decor-foglie span:nth-child(4) { height: 70%; background: #5c7a4a; }
+        .decor-foglie span:nth-child(5) { height: 50%; background: #7ea36a; }
+
+        .decor-vaso {
+            width: 100%;
+            height: 33%;
+            flex-shrink: 0;
+            background: #8b5a2c;
+            border-radius: 3px 3px 1px 1px;
+        }
+
+        .decor-tv-wrap {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            max-width: 62%;
+        }
+
+        .decor-tv {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #161616;
+            border-radius: 4px;
+            box-shadow: inset 0 0 0 4px #2a2a2a;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .decor-tv-schermo {
+            position: absolute;
+            inset: 4px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 2px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .decor-tv.accesa .decor-tv-schermo {
+            opacity: 1;
+        }
+
+        .decor-mobile {
+            width: 105%;
+            margin: 6px 0 0 -2%;
+            height: 46px;
+            background: #a9b99a;
+            border-radius: 3px;
+        }
+
+        .mensola-titolo {
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: #a3a39c;
+            margin-bottom: 2px;
+        }
+
+        .mensola-settori {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            min-height: 60px;
+            overflow: hidden;
+            padding: 0 6px 4px 6px;
+            background: #eae9e4;
+            border-bottom: 3px solid #ffffff;
+        }
+
+        /* DORSO DEL LIBRO */
+        .dorso {
+            cursor: pointer;
+            width: 44px;
+            height: 56px;
+            border-radius: 2px 2px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 3px;
+            transition: transform 0.3s ease;
+            box-shadow: inset -2px 0 4px rgba(0,0,0,0.1), 1px 0 2px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .dorso-grande {
+            height: 260px !important;
+            padding: 10px 6px;
+        }
+
+        .dorso-grande .dorso-testo-container {
+            opacity: 1;
+        }
+
+        .dorso-grande .dorso-titolo {
+            font-size: 1.05rem;
+        }
+
+        .dorso-grande .dorso-autore {
+            font-size: 0.85rem;
+        }
+
+        .dorso:hover {
+            transform: translateY(-6px);
+            z-index: 10;
+        }
+
+        /* Effetto metallizzato: applicabile a qualunque "copertina" (dorso Krossing,
+           dorso/barra Hiro) tramite classe, indipendentemente dal colore hex sottostante. */
+        @keyframes libro-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -60% 0; }
+        }
+
+        .metallizzato-oro,
+        .metallizzato-argento {
+            background-repeat: no-repeat;
+            background-size: 250% 100%;
+            animation: libro-shimmer 3.2s linear infinite;
+        }
+
+        .metallizzato-oro {
+            background-image: linear-gradient(120deg, #7a5f13 0%, #d4af37 22%, #fff6d6 42%, #d4af37 62%, #8a6d1c 100%);
+        }
+
+        .metallizzato-argento {
+            background-image: linear-gradient(120deg, #6b6b6f 0%, #c7c9cc 22%, #ffffff 42%, #c7c9cc 62%, #75767a 100%);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .metallizzato-oro,
+            .metallizzato-argento {
+                animation: none;
+                background-position: 50% 0;
+            }
+        }
+
+        .dorso.desaturato {
+            background-color: #cbd5e1 !important;
+            opacity: 0.35;
+            filter: grayscale(100%);
+            box-shadow: none;
+        }
+
+        .hiro-zona-libro.desaturato,
+        .hiro-libro-piatto.desaturato {
+            background-color: #cbd5e1 !important;
+            opacity: 0.35;
+            filter: grayscale(100%);
+            box-shadow: none;
+        }
+
+        .libro-evidenziato-hiro {
+            outline: 3px solid #e67e22;
+            outline-offset: 2px;
+            animation: pulsa-evidenzia-hiro 0.7s ease-in-out 4;
+        }
+
+        @keyframes pulsa-evidenzia-hiro {
+            0%, 100% { outline-color: #e67e22; }
+            50% { outline-color: transparent; }
+        }
+
+        .dorso-testo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            gap: 6px;
+            height: 100%;
+            padding: 0 2px;
+            box-sizing: border-box;
+            overflow: hidden;
+            opacity: 0;
+        }
+
+        .libreria-container.vista-quadrante .dorso-testo-container {
+            opacity: 1;
+        }
+
+        .dorso.senza-testo .dorso-testo-container {
+            opacity: 0 !important;
+        }
+
+        .dorso-titolo {
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 100%;
+        }
+
+        .dorso-autore {
+            font-size: 0.7rem;
+            font-weight: 400;
+            opacity: 0.9;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 100%;
+        }
+
+        .dorso-badges {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .badge {
+            font-size: 0.5rem;
+            padding: 1px 3px;
+            border-radius: 2px;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+        .badge.lisa { background: #9b59b6; }
+        .badge.fra { background: #2ecc71; }
+        .badge.vendere { background: #e74c3c; }
+
+        /* STRUTTURA POPUP (MODALI) */
+        .overlay-pagina {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(3px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .overlay-pagina.attiva {
+            display: flex;
+        }
+
+        .scheda-pop {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 550px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .chiudi-btn {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 1.8rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .btn-ricerca-mobile {
+            display: none;
+        }
+
+        .chiudi-btn:hover { color: #333; }
+
+        .scheda-ricerca-mobile {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #ricerca-titolo-mobile {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid #c8c7c2;
+            font-size: 1rem;
+            box-sizing: border-box;
+            margin: 10px 0 14px 0;
+        }
+
+        .risultato-ricerca {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 4px;
+            border-bottom: 1px solid #ece9e4;
+            cursor: pointer;
+        }
+
+        .risultato-ricerca:hover { background: #f7f6f3; }
+
+        .risultato-ricerca .pallino-colore {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .risultato-ricerca .risultato-titolo {
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .risultato-ricerca .risultato-sotto {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .risultato-ricerca-vuoto {
+            color: #999;
+            padding: 10px 4px;
+        }
+
+        /* FORM INSERIMENTO */
+        .form-grid-pop {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .form-group-full {
+            grid-column: span 2;
+        }
+
+        .form-pop label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .form-pop input, .form-pop select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .btn-salva-libro {
+            width: 100%;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .btn-salva-libro:hover { background: #27ae60; }
+
+        .btn-elimina {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .btn-elimina:hover { background: #c0392b; }
+
+        /* OVERLAY RUOTA IL TELEFONO (solo mobile verticale) */
+        .overlay-ruota {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #2c3e50;
+            color: white;
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+            gap: 18px;
+        }
+
+        .overlay-ruota .icona-ruota {
+            font-size: 4rem;
+            animation: ruota-pulse 1.6s ease-in-out infinite;
+        }
+
+        @keyframes ruota-pulse {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
+        }
+
+        .overlay-ruota .ruota-titolo {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .overlay-ruota .ruota-sottotitolo {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            max-width: 280px;
+        }
+
+        /* TEST VERSIONE VERTICALE: rotazione forzata disattivata temporaneamente.
+           Per riattivarla, togliere il commento qui sotto.
+        @media (orientation: portrait) {
+            .overlay-ruota {
+                display: flex;
+            }
+        }
+        */
+
+        /* TEST VERSIONE VERTICALE: parete esplorabile trascinando col dito (e con il pinch-to-zoom nativo) */
+        @media (orientation: portrait) {
+            .parete-wrapper {
+                overflow: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .ricerca-fissa {
+                display: none;
+            }
+
+            .btn-ricerca-mobile {
+                display: flex;
+            }
+        }
+
+        /* LAYOUT COMPATTO MOBILE ORIZZONTALE: icone e ricerca in overlay, parete a schermo pieno */
+        @media (orientation: landscape) and (max-height: 500px) {
+            body {
+                padding: 6px;
+            }
+
+            .top-bar {
+                position: fixed;
+                top: 8px;
+                right: 8px;
+                margin: 0;
+                max-width: none;
+                width: auto;
+                z-index: 500;
+            }
+
+            .icone-topbar {
+                flex-direction: column;
+            }
+
+            .icone-topbar .btn-apri-form {
+                padding: 8px 10px;
+                font-size: 1rem;
+            }
+
+            .ricerca-fissa {
+                display: none;
+            }
+
+            .btn-ricerca-mobile {
+                display: flex;
+            }
+
+            .zoom-controls {
+                position: fixed;
+                top: 8px;
+                left: 8px;
+                min-height: 0;
+                margin: 0;
+                justify-content: flex-start;
+                z-index: 400;
+            }
+
+            .parete-wrapper {
+                margin-top: 0;
+            }
+
+            .filtri-header-mobile {
+                display: flex;
+                justify-content: flex-end;
+                position: sticky;
+                top: 0;
+                background: white;
+                margin: -12px -12px 12px -12px;
+                padding: 10px 12px;
+                border-bottom: 1px solid #eee;
+                z-index: 1;
+            }
+
+            .btn-chiudi-filtri {
+                background: #e74c3c;
+                color: white;
+                border: none;
+                padding: 10px 16px;
+                border-radius: 6px;
+                font-size: 0.95rem;
+                font-weight: 600;
+            }
+
+            .filtri-container {
+                position: fixed;
+                top: 56px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                max-height: none;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 12px;
+                margin: 0;
+                max-width: none;
+                border-radius: 0;
+                z-index: 495;
+            }
+        }
+
+        /* MOBILE GENERALE (qualsiasi orientamento, schermo stretto): l'ingranaggio deve
+           restare sempre raggiungibile, e la tendina filtri deve comportarsi da vera
+           modale (overlay a schermo intero + sfondo scuro + tasto chiudi sempre visibile),
+           altrimenti su portrait scorre via con la pagina e diventa introvabile. */
+        @media (max-width: 768px) {
+            .top-bar {
+                position: fixed;
+                top: 8px;
+                right: 8px;
+                margin: 0;
+                max-width: none;
+                width: auto;
+                z-index: 500;
+            }
+
+            .filtri-header-mobile {
+                display: flex;
+                justify-content: flex-end;
+                position: sticky;
+                top: 0;
+                background: white;
+                margin: -12px -12px 12px -12px;
+                padding: 10px 12px;
+                border-bottom: 1px solid #eee;
+                z-index: 1;
+            }
+
+            .btn-chiudi-filtri {
+                background: #e74c3c;
+                color: white;
+                border: none;
+                padding: 10px 16px;
+                border-radius: 6px;
+                font-size: 0.95rem;
+                font-weight: 600;
+            }
+
+            .filtri-container {
+                position: fixed;
+                top: 56px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                max-height: none;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 12px;
+                margin: 0;
+                max-width: none;
+                border-radius: 0;
+                z-index: 495;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay-ruota">
+        <div class="icona-ruota">📱</div>
+        <div class="ruota-titolo">Ruota il telefono</div>
+        <div class="ruota-sottotitolo">Krossing è pensato per essere usato in orizzontale</div>
+    </div>
+
+    <!-- BARRA TOGGLE (solo icone) -->
+    <div class="top-bar" style="justify-content: flex-end;">
+        <div class="icone-topbar" style="display: flex; gap: 10px;">
+            <button class="btn-apri-form btn-ricerca-mobile" style="background:#34495e;" onclick="apriRicercaMobile()" title="Cerca">🔍</button>
+            <button class="btn-apri-form" style="background:#34495e;" onclick="toggleStats()" title="Statistiche">📊</button>
+            <button class="btn-apri-form" style="background:#34495e;" onclick="toggleControlli()" title="Comandi">⚙️</button>
+            <button class="btn-apri-form" style="background:#95a5a6;" onclick="cambiaLibreria()" title="Cambia libreria">📚</button>
+        </div>
+    </div>
+
+    <!-- STATISTICHE -->
+    <div class="stats-bar" id="stats-bar" style="display:none; max-width:1200px; margin:0 auto 20px auto;">
+        <span>📦 Totale: <strong id="cnt-totale">0</strong></span>
+        <span>📖 Lisa: <strong id="cnt-lisa">0</strong></span>
+        <span>📖 Fra: <strong id="cnt-fra">0</strong></span>
+        <span>🏷️ Vendere: <strong id="cnt-vendere">0</strong></span>
+        <span>📑 Narrativa: <strong id="cnt-narrativa">0</strong></span>
+        <span>💡 Saggistica: <strong id="cnt-saggistica">0</strong></span>
+    </div>
+
+    <!-- COMANDI (filtri + azioni) -->
+    <div class="filtri-container" id="filtri-container" style="display:none;">
+        <div class="filtri-header-mobile">
+            <button class="btn-chiudi-filtri" onclick="toggleControlli()" title="Chiudi">✕ Chiudi</button>
+        </div>
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <button class="btn-apri-form" onclick="apriFormPagina()" title="Aggiungi libro">➕</button>
+            <button class="btn-apri-form" style="background:#34495e;" onclick="esportaLibri()" title="Esporta JSON">⬇️</button>
+            <button class="btn-apri-form" style="background:#34495e;" onclick="esportaLibriCSV()" title="Esporta CSV">📄</button>
+            <button class="btn-apri-form" style="background:#34495e;" onclick="document.getElementById('input-importa').click()" title="Importa (JSON o CSV)">⬆️</button>
+            <input type="file" id="input-importa" accept=".json,.csv,application/json,text/csv" style="display:none" onchange="importaLibri(event)">
+        </div>
+        <div class="filtri-grid">
+            <div class="filtro-group">
+                <label for="filtro-genere">Genere</label>
+                <select id="filtro-genere">
+                    <option value="">Tutti i generi</option>
+                    <option value="Narrativa">Narrativa</option>
+                    <option value="Saggistica">Saggistica</option>
+                    <option value="Manualistica">Manualistica</option>
+                    <option value="Filosofia">Filosofia</option>
+                    <option value="Biografie">Biografie</option>
+                    <option value="Non-fiction">Non-fiction</option>
+                    <option value="Ragazzi">Ragazzi</option>
+                    <option value="Libri d'arte">Libri d'arte</option>
+                    <option value="Graphic Novel">Graphic Novel</option>
+                </select>
+            </div>
+            <div class="filtro-group">
+                <label for="filtro-sottogenere">Sottogenere</label>
+                <select id="filtro-sottogenere">
+                    <option value="">Tutti i sottogeneri</option>
+                </select>
+            </div>
+            <div class="filtro-group">
+                <label for="filtro-editore">Casa editrice</label>
+                <select id="filtro-editore">
+                    <option value="">Tutte le case editrici</option>
+                </select>
+            </div>
+            <div class="filtro-group">
+                <label for="filtro-lingua">Lingua</label>
+                <select id="filtro-lingua">
+                    <option value="">Tutte le lingue</option>
+                </select>
+            </div>
+            <div class="filtro-group">
+                <label for="filtro-da-leggere">Da leggere</label>
+                <select id="filtro-da-leggere">
+                    <option value="">Tutti</option>
+                    <option value="Fra">Fra</option>
+                    <option value="Lisa">Lisa</option>
+                </select>
+                <div id="filtro-microcopy" style="font-size: 0.8rem; color: #64748b; margin-top: 6px; font-style: italic;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RICERCA SEMPRE VISIBILE -->
+    <div class="ricerca-fissa" id="ricerca-fissa-box">
+        <input type="text" id="ricerca-titolo" placeholder="🔍 Cerca un libro o un autore...">
+    </div>
+
+    <!-- LIBRERIA KROSSING -->
+    <div class="zoom-controls">
+        <button id="btn-panoramica" class="btn-apri-form" style="background:#34495e; visibility:hidden;" onclick="tornaAllaPanoramica()" title="Torna alla panoramica">↺ Panoramica</button>
+    </div>
+    <div class="parete-wrapper">
+        <div id="scaffali-cornice">
+            <div class="libreria-container" id="scaffali-container"></div>
+        </div>
+    </div>
+    <div class="vista-scaffale" id="vista-scaffale"></div>
+
+    <!-- LIBRERIA HIRO -->
+    <div class="hiro-wrapper" id="hiro-wrapper" style="display:none;">
+
+        <!-- PANORAMICA HIRO: illustrazione fissa + libri veri sovrapposti nelle zone vuote -->
+        <div id="hiro-panoramica" class="hiro-panoramica">
+            <div class="hiro-pavimento-scena"></div>
+            <div class="hiro-mobile-scena"><div class="hiro-mobile-interno"></div></div>
+            <div class="hiro-tavola-scena" id="hiro-tavola-37"></div>
+            <div class="hiro-tavola-scena" id="hiro-tavola-38"></div>
+            <div class="hiro-tavola-scena" id="hiro-tavola-39"></div>
+            <div class="hiro-tavola-scena" id="hiro-tavola-40"></div>
+            <div class="hiro-zona" id="hiro-zona-37" data-mensola="37"></div>
+            <div class="hiro-zona" id="hiro-zona-38" data-mensola="38"></div>
+            <div class="hiro-zona" id="hiro-zona-39" data-mensola="39"></div>
+            <div class="hiro-zona" id="hiro-zona-40" data-mensola="40"></div>
+            <div class="hiro-pianta-scena">
+                <svg viewBox="-30 -290 190 690" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 42 372 L 78 372 L 84 412 L 36 412 Z" fill="#7a9070"/>
+  <rect x="40" y="366" width="40" height="8" rx="2" fill="#87977a"/>
+  <path d="M 60 368 Q 60.0 368.0, 58.5 349.0 Q 57.0 330.0, 60.0 312.5 Q 63.0 295.0, 60.5 277.5 Q 58.0 260.0, 61.0 242.5 Q 64.0 225.0, 61.5 207.5 Q 59.0 190.0, 62.0 172.5 Q 65.0 155.0, 62.5 137.5 Q 60.0 120.0, 63.0 102.5 Q 66.0 85.0, 63.5 67.5 Q 61.0 50.0, 63.5 32.5 Q 66.0 15.0, 64.0 -2.5 Q 62.0 -20.0, 64.5 -37.5 Q 67.0 -55.0, 65.0 -72.5 Q 63.0 -90.0, 65.5 -107.5 Q 68.0 -125.0, 66.0 -142.5 Q 64.0 -160.0, 66.5 -177.5 Q 69.0 -195.0, 67.0 -212.5 Q 65.0 -230.0, 67.5 -247.5 Q 70.0 -265.0, 68.5 -282.5 T 67 -300" fill="none" stroke="#6b5a44" stroke-width="3" stroke-linecap="round"/>
+  <g fill="#7fa06b">
+    <path d="M 63.0 310.0 C 58.8 296.8, 36.3 285.7, 37.7 287.2 C 38.7 288.3, 44.4 302.7, 63.0 310.0 Z"/>
+<path d="M 58.0 275.0 C 72.2 272.3, 84.2 253.5, 85.6 251.9 C 86.5 250.8, 68.7 256.9, 58.0 275.0 Z"/>
+<path d="M 64.0 240.0 C 59.7 226.8, 37.5 214.3, 38.8 215.7 C 39.7 216.6, 45.6 231.3, 64.0 240.0 Z"/>
+<path d="M 59.0 205.0 C 72.7 201.4, 84.4 182.4, 85.8 180.9 C 86.6 179.9, 69.4 186.9, 59.0 205.0 Z"/>
+<path d="M 65.0 170.0 C 61.3 157.5, 40.8 145.0, 42.1 146.3 C 42.9 147.1, 48.1 161.1, 65.0 170.0 Z"/>
+<path d="M 60.0 135.0 C 72.7 131.0, 83.2 112.7, 84.5 111.4 C 85.3 110.5, 69.3 117.7, 60.0 135.0 Z"/>
+<path d="M 66.0 100.0 C 62.8 88.3, 44.0 75.9, 45.3 77.0 C 46.1 77.7, 50.5 91.0, 66.0 100.0 Z"/>
+<path d="M 61.0 65.0 C 72.5 61.0, 81.3 43.8, 82.5 42.7 C 83.3 41.9, 68.9 48.9, 61.0 65.0 Z"/>
+<path d="M 66.0 30.0 C 63.3 19.0, 46.2 6.8, 47.4 7.8 C 48.1 8.4, 51.9 21.0, 66.0 30.0 Z"/>
+<path d="M 62.0 -5.0 C 72.5 -9.2, 80.3 -25.5, 81.4 -26.6 C 82.1 -27.2, 69.0 -20.2, 62.0 -5.0 Z"/>
+<path d="M 67.0 -40.0 C 64.7 -50.2, 49.3 -62.1, 50.4 -61.3 C 51.1 -60.7, 54.3 -48.9, 67.0 -40.0 Z"/>
+<path d="M 63.0 -75.0 C 72.5 -79.3, 79.3 -94.8, 80.4 -95.7 C 81.0 -96.3, 69.1 -89.3, 63.0 -75.0 Z"/>
+<path d="M 63.0 -105.0 C 61.1 -114.4, 47.3 -125.9, 48.3 -125.2 C 49.0 -124.8, 51.7 -113.8, 63.0 -105.0 Z"/>
+<path d="M 68.0 -135.0 C 76.5 -139.4, 82.4 -154.0, 83.4 -154.7 C 84.0 -155.2, 73.3 -148.3, 68.0 -135.0 Z"/>
+<path d="M 64.0 -165.0 C 62.4 -173.6, 50.3 -184.7, 51.1 -184.1 C 51.7 -183.7, 54.0 -173.5, 64.0 -165.0 Z"/>
+<path d="M 69.0 -195.0 C 76.6 -199.5, 81.7 -213.0, 82.5 -213.6 C 83.1 -214.0, 73.6 -207.3, 69.0 -195.0 Z"/>
+<path d="M 65.0 -225.0 C 63.6 -232.8, 53.1 -243.3, 53.9 -242.8 C 54.4 -242.5, 56.3 -233.2, 65.0 -225.0 Z"/>
+<path d="M 70.0 -250.0 C 76.6 -254.4, 81.0 -266.9, 81.7 -267.4 C 82.2 -267.7, 74.0 -261.3, 70.0 -250.0 Z"/>
+
+  </g>
+</svg>
+            </div>
+        </div>
+
+        <!-- ZOOM SU SINGOLA MENSOLA HIRO -->
+        <div id="hiro-zoom" class="hiro-zoom" style="display:none;">
+            <button class="btn-apri-form" style="background:#34495e; margin-bottom:10px;" onclick="tornaAllaPanoramicaHiro()">↺ Panoramica Hiro</button>
+            <div id="hiro-container"></div>
+        </div>
+    </div>
+
+    <!-- SCHERMATA FORM INSERIMENTO -->
+    <div id="overlay-form" class="overlay-pagina">
+        <div class="scheda-pop">
+            <button class="chiudi-btn" onclick="chiudiFormPagina()">&times;</button>
+            <h2 id="form-titolo" style="color: #2c3e50; margin-bottom: 10px;">➕ Inserisci un nuovo libro</h2>
+            <form id="form-nuovo-libro" class="form-pop">
+                <div class="form-grid-pop">
+                    <div class="form-group-full">
+                        <label for="nuovo-titolo">Titolo del libro *</label>
+                        <input type="text" id="nuovo-titolo" required placeholder="Es. Il nome della rosa">
+                    </div>
+                    <div>
+                        <label for="nuovo-autore">Autore * (Cognome, Nome)</label>
+                        <input type="text" id="nuovo-autore" required placeholder="Es. Eco, Umberto">
+                    </div>
+                    <div>
+                        <label for="nuovo-editore">Editore</label>
+                        <input type="text" id="nuovo-editore" placeholder="Es. Bompiani">
+                    </div>
+                    <div>
+                        <label for="nuovo-anno">Anno</label>
+                        <input type="number" id="nuovo-anno" placeholder="Es. 2003" min="0">
+                    </div>
+                    <div>
+                        <label for="nuovo-genere">Genere *</label>
+                        <select id="nuovo-genere" required>
+                            <option value="Narrativa">Narrativa</option>
+                            <option value="Saggistica">Saggistica</option>
+                            <option value="Manualistica">Manualistica</option>
+                            <option value="Filosofia">Filosofia</option>
+                            <option value="Biografie">Biografie</option>
+                            <option value="Non-fiction">Non-fiction</option>
+                            <option value="Ragazzi">Ragazzi</option>
+                            <option value="Libri d'arte">Libri d'arte</option>
+                            <option value="Graphic Novel">Graphic Novel</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="nuovo-sottogenere">Sottogenere</label>
+                        <input type="text" id="nuovo-sottogenere" placeholder="Es. spy story">
+                    </div>
+                    <div>
+                        <label for="nuovo-lingua">Lingua</label>
+                        <input type="text" id="nuovo-lingua" placeholder="Es. italiano">
+                    </div>
+                    <div>
+                        <label for="nuovo-libreria">Libreria *</label>
+                        <input type="text" id="nuovo-libreria" value="Krossing" placeholder="Es. Krossing">
+                    </div>
+                    <div>
+                        <label for="nuovo-colore">Colore del dorso</label>
+                        <input type="color" id="nuovo-colore" value="#8A9A86">
+                    </div>
+                    <div>
+                        <label for="nuovo-metallizzato">Effetto copertina</label>
+                        <select id="nuovo-metallizzato">
+                            <option value="">Nessuno</option>
+                            <option value="oro">Oro (metallizzato)</option>
+                            <option value="argento">Argento (metallizzato)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="nuovo-mensola">Mensola (Numero) *</label>
+                        <input type="number" id="nuovo-mensola" value="1" min="1" max="36" required>
+                    </div>
+                    <div>
+                        <label for="nuovo-pagine">Numero di pagine</label>
+                        <input type="number" id="nuovo-pagine" min="1" placeholder="Es. 320">
+                    </div>
+                    <div>
+                        <label for="nuovo-pagine-visive">Taglia visiva (opzionale)</label>
+                        <select id="nuovo-pagine-visive">
+                            <option value="">Usa il numero di pagine</option>
+                            <option value="XXS">XXS</option>
+                            <option value="XS">XS</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="XXL">XXL</option>
+                        </select>
+                    </div>
+                    <div class="form-group-full">
+                        <label>Opzioni libro</label>
+                        <div class="checkbox-group" style="margin-top: 5px;">
+                            <div class="checkbox-item"><input type="checkbox" id="nuovo-lisa"><label for="nuovo-lisa">Letto da Lisa</label></div>
+                            <div class="checkbox-item"><input type="checkbox" id="nuovo-fra"><label for="nuovo-fra">Letto da Fra</label></div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" id="btn-salva-libro" class="btn-salva-libro">Salva e aggiungi alla libreria</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCHERMATA DETTAGLI E GESTIONE LIBRO -->
+    <div id="overlay-dettagli" class="overlay-pagina">
+        <div class="scheda-pop">
+            <button class="chiudi-btn" onclick="chiudiDettagli()">&times;</button>
+            <div id="dettagli-body"></div>
+        </div>
+    </div>
+
+    <!-- RICERCA MOBILE A SCHERMO INTERO -->
+    <div id="overlay-ricerca-mobile" class="overlay-pagina">
+        <div class="scheda-pop scheda-ricerca-mobile">
+            <button class="chiudi-btn" onclick="chiudiRicercaMobile()">&times;</button>
+            <input type="text" id="ricerca-titolo-mobile" placeholder="🔍 Cerca un libro o un autore..." oninput="filtraRicercaMobile()">
+            <div id="risultati-ricerca-mobile"></div>
+        </div>
+    </div>
+
+    <script>
+        const IMMAGINE_TV_ACCESA = "data:image/jpeg;base64,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";
+
+        const libriIniziali = [
+            { id: 1, titolo: "Il codice da Vinci", autore: "Brown, Dan", editore: "Mondadori", anno: 2003, genere: "Narrativa", sottogenere: "Thriller", lingua: "italiano", libreria: "Krossing", mensola: 1, numeroPagine: 550, lettoLisa: false, lettoFra: true, vendere: false, colore: "#D4AF37", coloreTesto: "black", dataInserimento: "2024-01-01" },
+            { id: 2, titolo: "Crypto", autore: "Brown, Dan", editore: "Mondadori", anno: 2007, genere: "Narrativa", sottogenere: "Thriller", lingua: "italiano", libreria: "Krossing", mensola: 1, numeroPagine: 450, lettoLisa: false, lettoFra: false, vendere: false, colore: "#D9534F", coloreTesto: "white", dataInserimento: "2024-01-01" },
+            { id: 3, titolo: "La verità del ghiaccio", autore: "Brown, Dan", editore: "Mondadori", anno: 2010, genere: "Narrativa", sottogenere: "Thriller", lingua: "italiano", libreria: "Krossing", mensola: 1, numeroPagine: null, lettoLisa: true, lettoFra: false, vendere: true, colore: "#2c3e50", coloreTesto: "white", dataInserimento: "2024-01-01" },
+            { id: 4, titolo: "La sposa bambina", autore: "Padma, Padma", editore: "Piemme", anno: 2015, genere: "Narrativa", sottogenere: "Romanzo", lingua: "italiano", libreria: "Krossing", mensola: 1, numeroPagine: null, lettoLisa: false, lettoFra: true, vendere: false, colore: "#e67e22", coloreTesto: "white", dataInserimento: "2024-01-01" },
+            { id: 5, titolo: "I segreti del codice", autore: "Burstein, Dan", editore: "Sperling", anno: 2004, genere: "Saggistica", sottogenere: "", lingua: "italiano", libreria: "Krossing", mensola: 2, numeroPagine: null, lettoLisa: true, lettoFra: true, vendere: false, colore: "#4A90E2", coloreTesto: "white", dataInserimento: "2024-01-01" },
+            { id: 6, titolo: "Identità", autore: "Fukuyama", editore: "Utet", anno: 2019, genere: "Saggistica", sottogenere: "Politica", lingua: "italiano", libreria: "Krossing", mensola: 2, numeroPagine: null, lettoLisa: true, lettoFra: false, vendere: false, colore: "#8A9A86", coloreTesto: "white", dataInserimento: "2024-01-01" },
+
+            // LIBRERIA HIRO (libri d'arte / graphic novel) — dati reali forniti da Francesco il 07/08/2026, non definitivi
+            { id: "A01", titolo: "Catalogo di oggetti introvabili", autore: "Carelman, Jacques", editore: "Vànvere", anno: null, genere: "Libri d'arte", sottogenere: "Illustrati, Design", lingua: "Italiano", libreria: "Hiro", mensola: 37, numeroPagine: 108, lettoLisa: true, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A02", titolo: "In costruzione", autore: "Berrio, Juan & Rayos, Sonya & Andrés, Silvana", editore: "Quinto quarto", anno: null, genere: "Ragazzi", sottogenere: "Illustrati", lingua: "Italiano", libreria: "Hiro", mensola: 37, numeroPagine: 64, lettoLisa: true, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A03", titolo: "Entryways of Milan. Ingressi di Milano", autore: "Kish, Brian & Sherer, Daniel & Ballabio, Fabrizio & Signori, Grazia & Hockemeyer, Lisa & Sparke, Penny", editore: "Taschen", anno: null, genere: "Libri d'arte", sottogenere: "", lingua: "Italiano", libreria: "Hiro", mensola: 37, numeroPagine: 384, lettoLisa: true, lettoFra: true, vendere: false, colore: "#FFFFFF", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A04", titolo: "Walt Disney's Donald Duck. The Ultimate History", autore: "Kothenschulte, Daniel & Gerstein, David & Kaufman J.B.", editore: "Taschen", anno: null, genere: "Libri d'arte", sottogenere: "", lingua: "Inglese", libreria: "Hiro", mensola: 38, numeroPagine: 564, pagineVisive: "XXL", lettoLisa: true, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A05", titolo: "All-American Ads of the 60s", autore: "Heimann, Jim", editore: "Taschen", anno: null, genere: "Libri d'arte", sottogenere: "Pubblicità, Design", lingua: "Inglese", libreria: "Hiro", mensola: 39, numeroPagine: 638, pagineVisive: "S", lettoLisa: false, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A06", titolo: "Les dîners de Gala", autore: "Dalì, Salvador Domingo Felipe Jacinto Dalí i Domènech", editore: "Taschen", anno: null, genere: "Libri d'arte", sottogenere: "", lingua: "Inglese", libreria: "Hiro", mensola: 39, numeroPagine: 321, lettoLisa: true, lettoFra: true, vendere: false, colore: "#C6A55C", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A07", titolo: "Codex Seraphinianus", autore: "Serafini, Luigi", editore: "Rizzoli", anno: null, genere: "Libri d'arte", sottogenere: "", lingua: "Italiano", libreria: "Hiro", mensola: 39, numeroPagine: 392, pagineVisive: "XXL", lettoLisa: true, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A08", titolo: "Pelle d'uomo", autore: "Mancini, Fabio Pia", editore: "BAO", anno: null, genere: "Graphic Novel", sottogenere: "", lingua: "Italiano", libreria: "Hiro", mensola: 40, numeroPagine: 184, lettoLisa: true, lettoFra: false, vendere: false, colore: "#070707", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A09", titolo: "Unboxing Pandora", autore: "Despentes, Virginie", editore: "BAO", anno: null, genere: "Graphic Novel", sottogenere: "", lingua: "Italiano", libreria: "Hiro", mensola: 40, numeroPagine: 184, lettoLisa: true, lettoFra: true, vendere: false, colore: "#070707", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A010", titolo: "La mia vita postuma", autore: "Hubert, Zanzim", editore: "BAO", anno: null, genere: "Graphic Novel", sottogenere: "", lingua: "Italiano", libreria: "Hiro", mensola: 40, numeroPagine: 112, lettoLisa: true, lettoFra: false, vendere: false, colore: "#142D2D", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A011", titolo: "Maus", autore: "Spiegelman, Art", editore: "Einaudi", anno: 1980, genere: "Graphic Novel", sottogenere: "Storia", lingua: "Italiano", libreria: "Hiro", mensola: 40, numeroPagine: 292, lettoLisa: false, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A012", titolo: "La profezia dell'armadillo", autore: "Zerocalcare", editore: "BAO", anno: null, genere: "Graphic Novel", sottogenere: "Umorismo, Fumetti", lingua: "Italiano", libreria: "Hiro", mensola: 40, numeroPagine: 160, lettoLisa: false, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A013", titolo: "Un polpo alla gola", autore: "Zerocalcare", editore: "BAO", anno: null, genere: "Graphic Novel", sottogenere: "Umorismo, Fumetti", lingua: "Italiano", libreria: "Hiro", mensola: 40, numeroPagine: 200, lettoLisa: false, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A014", titolo: "Macerie prime", autore: "Zerocalcare", editore: "BAO", anno: null, genere: "Graphic Novel", sottogenere: "Umorismo, Fumetti", lingua: "Italiano", libreria: "Hiro", mensola: 40, numeroPagine: 192, lettoLisa: false, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A015", titolo: "Macerie prime - Sei mesi dopo", autore: "Zerocalcare", editore: "BAO", anno: null, genere: "Graphic Novel", sottogenere: "Umorismo, Fumetti", lingua: "Italiano", libreria: "Hiro", mensola: 40, numeroPagine: 192, lettoLisa: false, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A016", titolo: "Scheletri", autore: "Zerocalcare", editore: "BAO", anno: null, genere: "Graphic Novel", sottogenere: "Umorismo, Fumetti", lingua: "Italiano", libreria: "Hiro", mensola: 40, numeroPagine: 288, lettoLisa: false, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A017", titolo: "Quando muori resta a me", autore: "Zerocalcare", editore: "BAO", anno: null, genere: "Graphic Novel", sottogenere: "Umorismo, Fumetti", lingua: "Italiano", libreria: "Hiro", mensola: 40, numeroPagine: 304, lettoLisa: false, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A018", titolo: "Kobane Calling", autore: "Zerocalcare", editore: "BAO", anno: null, genere: "Graphic Novel", sottogenere: "Umorismo, Fumetti", lingua: "Italiano", libreria: "Hiro", mensola: 40, numeroPagine: 312, lettoLisa: false, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A019", titolo: "No Sleep Till Shengal", autore: "Zerocalcare", editore: "BAO", anno: null, genere: "Graphic Novel", sottogenere: "Umorismo, Fumetti", lingua: "Italiano", libreria: "Hiro", mensola: 40, numeroPagine: 208, lettoLisa: false, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A020", titolo: "Nel nido dei serpenti", autore: "Zerocalcare", editore: "BAO", anno: null, genere: "Graphic Novel", sottogenere: "Umorismo, Fumetti", lingua: "Italiano", libreria: "Hiro", mensola: 40, numeroPagine: 200, lettoLisa: false, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" },
+            { id: "A021", titolo: "Niente di nuovo sul fronte Rebibbia", autore: "Zerocalcare", editore: "BAO", anno: null, genere: "Graphic Novel", sottogenere: "Umorismo, Fumetti", lingua: "Italiano", libreria: "Hiro", mensola: 40, numeroPagine: 224, lettoLisa: false, lettoFra: true, vendere: false, colore: "", coloreTesto: null, dataInserimento: "2026-08-07" }
+        ];
+
+        let listaLibri = [];
+
+        // Normalizza mensola e libreria per QUALSIASI libro, indipendentemente da dove
+        // arrivano i dati (sync live da Google Sheet, cache locale, import CSV, dati di
+        // partenza). Il Google Sheet è testo libero: basta un apostrofo o uno spazio in
+        // più nella cella "mensola", o una maiuscola/spazio diverso in "libreria", per far
+        // sparire silenziosamente un libro dallo scaffale pur restando "assegnato" a vista.
+        function normalizzaLibro(l) {
+            const problemi = [];
+
+            let mensola = l.mensola;
+            if (typeof mensola !== "number" || Number.isNaN(mensola)) {
+                const grezza = (mensola ?? "").toString().trim();
+                const soloNumeri = grezza.replace(/[^0-9]/g, "");
+                const pulita = soloNumeri ? parseInt(soloNumeri) : null;
+                if (grezza && pulita === null) {
+                    problemi.push(`mensola "${grezza}" non contiene nessun numero`);
+                } else if (grezza && String(pulita) !== grezza) {
+                    problemi.push(`mensola scritta come "${grezza}", letta come ${pulita}`);
+                }
+                mensola = pulita;
+            }
+
+            let libreria = l.libreria;
+            const libreriaGrezza = (libreria ?? "").toString().trim();
+            const libreriaNorm = libreriaGrezza.toLowerCase();
+            const LIBRERIE_NOTE = { krossing: "Krossing", hiro: "Hiro", camera: "Camera" };
+            if (!libreriaGrezza) {
+                libreria = "Krossing";
+            } else if (LIBRERIE_NOTE[libreriaNorm]) {
+                libreria = LIBRERIE_NOTE[libreriaNorm];
+            } else {
+                // Valore che non è nessuna delle librerie note: lo lasciamo come nel
+                // foglio (comportamento pre-esistente) invece di forzarlo su Krossing,
+                // così un refuso non mescola libri di una stanza in un'altra.
+                libreria = libreriaGrezza;
+                problemi.push(`libreria "${libreriaGrezza}" non riconosciuta (non è Krossing/Hiro/Camera) — controlla se è un refuso`);
+            }
+
+            if (problemi.length > 0) {
+                problemiNormalizzazione.push({ titolo: l.titolo || `(id ${l.id})`, problemi });
+            }
+
+            let metallizzato = (l.metallizzato ?? "").toString().trim().toLowerCase();
+            if (metallizzato !== "oro" && metallizzato !== "argento") metallizzato = "";
+
+            return { ...l, mensola, libreria, metallizzato };
+        }
+
+        // Raccolta anomalie trovate nell'ultimo caricamento dati, per avvisare Francesco.
+        let problemiNormalizzazione = [];
+
+        // Due libri con lo stesso ID sono un problema serio e silenzioso: nella parete
+        // Krossing, il "gemello" disegnato per secondo (mensola più alta) resta orfano
+        // per sempre — nessuna ricerca o filtro riesce più a raggiungerlo per aggiornarlo,
+        // perché il browser trova sempre solo il PRIMO elemento con quell'id nella pagina.
+        // Va scoperto subito, non lasciato scoprire a vista come "libro che resta acceso".
+        function trovaIdDuplicati(lista) {
+            const visti = new Map();
+            const duplicati = [];
+            lista.forEach(l => {
+                if (visti.has(l.id)) {
+                    duplicati.push(`ID "${l.id}" su due libri diversi: "${visti.get(l.id)}" e "${l.titolo}" — dagliene uno diverso, altrimenti uno dei due resta bloccato a vista senza aggiornarsi mai più`);
+                } else {
+                    visti.set(l.id, l.titolo);
+                }
+            });
+            return duplicati;
+        }
+
+        const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_VTiiZT9DkdW-WaW620UNdDeMoNkGl1vZOBIhh6V9DJJIOFUu4gz406iLUJBFxVbV/exec";
+        let idInModifica = null;
+        let libreriaAttiva = "Krossing";
+
+        function caricaDaGoogle() {
+            return new Promise((resolve) => {
+                const nomeCallback = "callbackGoogle_" + Date.now();
+                let risolto = false;
+
+                const timeoutId = setTimeout(() => {
+                    if (!risolto) {
+                        risolto = true;
+                        console.warn("Timeout nel caricamento da Google Sheet");
+                        pulisci();
+                        resolve(null);
+                    }
+                }, 10000);
+
+                function pulisci() {
+                    delete window[nomeCallback];
+                    const tag = document.getElementById(nomeCallback);
+                    if (tag) tag.remove();
+                }
+
+                window[nomeCallback] = function(dati) {
+                    if (risolto) return;
+                    risolto = true;
+                    clearTimeout(timeoutId);
+                    pulisci();
+                    if (Array.isArray(dati) && dati.length > 0) {
+                        console.log("Dati caricati da Google Sheet");
+                        resolve(dati);
+                    } else {
+                        resolve(null);
+                    }
+                };
+
+                const script = document.createElement("script");
+                script.id = nomeCallback;
+                script.src = GOOGLE_APPS_SCRIPT_URL + "?callback=" + nomeCallback;
+                script.onerror = function() {
+                    if (risolto) return;
+                    risolto = true;
+                    clearTimeout(timeoutId);
+                    pulisci();
+                    console.warn("Errore nel caricamento da Google Sheet (script fallito)");
+                    resolve(null);
+                };
+                document.body.appendChild(script);
+            });
+        }
+
+        async function salvaSuGoogle() {
+            try {
+                await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(listaLibri)
+                });
+                console.log("Dati inviati a Google Sheet (risposta non verificabile per via del no-cors)");
+                return true;
+            } catch (err) {
+                console.warn("Errore nel salvataggio su Google Sheet:", err);
+                return false;
+            }
+        }
+
+        async function inizializzaDati() {
+            const datiGoogle = await caricaDaGoogle();
+            problemiNormalizzazione = [];
+
+            if (datiGoogle && datiGoogle.length > 0) {
+                listaLibri = datiGoogle.map(normalizzaLibro);
+                try {
+                    localStorage.setItem("crossing_libri", JSON.stringify(listaLibri));
+                } catch (e) {
+                    console.warn("localStorage non disponibile: uso i dati di Google senza cache locale.", e);
+                }
+                const righeCampi = problemiNormalizzazione.map(p => `• ${p.titolo}: ${p.problemi.join("; ")}`);
+                const righeId = trovaIdDuplicati(listaLibri).map(msg => `• ${msg}`);
+                const righe = [...righeId, ...righeCampi];
+                if (righe.length > 0) {
+                    console.warn("Anomalie nei dati importati da Google Sheet:\n" + righe.join("\n"));
+                    setTimeout(() => {
+                        alert(`Attenzione: ${righe.length} anomalia/e da controllare nel foglio:\n\n${righe.join("\n")}`);
+                    }, 300);
+                }
+            } else {
+                let salvataggio = null;
+                try {
+                    salvataggio = localStorage.getItem("crossing_libri");
+                } catch (e) {
+                    console.warn("localStorage non disponibile (es. apertura da data: URL): uso i dati di partenza senza salvataggio persistente.", e);
+                }
+                if (salvataggio) {
+                    listaLibri = JSON.parse(salvataggio).map(normalizzaLibro);
+                } else {
+                    listaLibri = libriIniziali.map(normalizzaLibro);
+                    salvaSuLocalStorage();
+                }
+            }
+
+            aggiornaCounter();
+            popolaFiltriDinamici();
+            renderLibreria();
+            vistaPanoramica();
+        }
+
+        function salvaSuLocalStorage() {
+            try {
+                localStorage.setItem("crossing_libri", JSON.stringify(listaLibri));
+            } catch (e) {
+                console.warn("localStorage non disponibile: le modifiche non verranno salvate in questa sessione.", e);
+            }
+            // Salva anche su Google in background (asincrono, non blocca)
+            salvaSuGoogle().catch(err => console.warn("Errore background Google save:", err));
+        }
+
+        function apriFormPagina(libro) {
+            idInModifica = libro ? libro.id : null;
+            document.getElementById("form-titolo").textContent = libro ? "✏️ Modifica libro" : "➕ Inserisci un nuovo libro";
+            document.getElementById("btn-salva-libro").textContent = libro ? "Salva modifiche" : "Salva e aggiungi alla libreria";
+
+            document.getElementById("nuovo-titolo").value = libro ? libro.titolo : "";
+            document.getElementById("nuovo-autore").value = libro ? libro.autore : "";
+            document.getElementById("nuovo-editore").value = libro ? libro.editore : "";
+            document.getElementById("nuovo-anno").value = libro && libro.anno ? libro.anno : "";
+            document.getElementById("nuovo-genere").value = libro && libro.genere ? libro.genere : "Narrativa";
+            document.getElementById("nuovo-sottogenere").value = libro && libro.sottogenere ? libro.sottogenere : "";
+            document.getElementById("nuovo-lingua").value = libro && libro.lingua ? libro.lingua : "";
+            document.getElementById("nuovo-libreria").value = libro && libro.libreria ? libro.libreria : "Krossing";
+            document.getElementById("nuovo-colore").value = libro ? libro.colore : "#8A9A86";
+            document.getElementById("nuovo-metallizzato").value = libro && libro.metallizzato ? libro.metallizzato : "";
+            document.getElementById("nuovo-mensola").value = libro ? libro.mensola : 1;
+            document.getElementById("nuovo-pagine").value = libro && libro.numeroPagine ? libro.numeroPagine : "";
+            document.getElementById("nuovo-pagine-visive").value = libro && libro.pagineVisive ? libro.pagineVisive : "";
+            document.getElementById("nuovo-lisa").checked = libro ? libro.lettoLisa : false;
+            document.getElementById("nuovo-fra").checked = libro ? libro.lettoFra : false;
+
+            document.getElementById("overlay-form").classList.add("attiva");
+        }
+
+        function chiudiFormPagina() {
+            document.getElementById("overlay-form").classList.remove("attiva");
+            document.getElementById("form-nuovo-libro").reset();
+            idInModifica = null;
+        }
+
+        /* INSERIMENTO DA FORM */
+        const MAX_PAGINE_PER_MENSOLA = 3500;
+        const PAGINE_STIMA_DEFAULT = 225; // usata per i libri senza numero di pagine indicato
+
+        document.getElementById("form-nuovo-libro").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const datiForm = {
+                titolo: document.getElementById("nuovo-titolo").value.trim(),
+                autore: document.getElementById("nuovo-autore").value.trim(),
+                editore: document.getElementById("nuovo-editore").value.trim() || "N.D.",
+                anno: document.getElementById("nuovo-anno").value ? parseInt(document.getElementById("nuovo-anno").value) : null,
+                genere: document.getElementById("nuovo-genere").value.trim(),
+                sottogenere: document.getElementById("nuovo-sottogenere").value.trim(),
+                lingua: document.getElementById("nuovo-lingua").value.trim(),
+                libreria: document.getElementById("nuovo-libreria").value.trim() || "Krossing",
+                mensola: parseInt(document.getElementById("nuovo-mensola").value),
+                numeroPagine: document.getElementById("nuovo-pagine").value ? parseInt(document.getElementById("nuovo-pagine").value) : null,
+                pagineVisive: document.getElementById("nuovo-pagine-visive").value || null,
+                lettoLisa: document.getElementById("nuovo-lisa").checked,
+                lettoFra: document.getElementById("nuovo-fra").checked,
+                colore: document.getElementById("nuovo-colore").value,
+                metallizzato: document.getElementById("nuovo-metallizzato").value || "",
+                coloreTesto: "white"
+            };
+
+            const paginePresenti = listaLibri
+                .filter(l => l.mensola === datiForm.mensola && l.id !== idInModifica)
+                .reduce((tot, l) => tot + (l.numeroPagine || PAGINE_STIMA_DEFAULT), 0);
+            const pagineNuovoLibro = datiForm.numeroPagine || PAGINE_STIMA_DEFAULT;
+
+            if (paginePresenti + pagineNuovoLibro > MAX_PAGINE_PER_MENSOLA) {
+                alert(`La mensola ${datiForm.mensola} è piena (${paginePresenti} / ${MAX_PAGINE_PER_MENSOLA} pagine circa). Scegli un'altra mensola.`);
+                return;
+            }
+
+            if (idInModifica !== null) {
+                const indice = listaLibri.findIndex(l => l.id === idInModifica);
+                if (indice !== -1) {
+                    listaLibri[indice] = { ...listaLibri[indice], ...datiForm };
+                }
+            } else {
+                const nuovoId = "NEW" + Date.now();
+                listaLibri.push({ id: nuovoId, dataInserimento: new Date().toISOString(), ...datiForm });
+            }
+
+            salvaSuLocalStorage();
+            aggiornaCounter();
+            popolaFiltriDinamici();
+            renderLibreria();
+            chiudiDettagli();
+            chiudiFormPagina();
+        });
+
+        function eliminaLibro(id) {
+            if (confirm("Sei sicuro di voler eliminare questo libro dalla tua libreria?")) {
+                listaLibri = listaLibri.filter(l => l.id !== id);
+                salvaSuLocalStorage();
+                aggiornaCounter();
+                renderLibreria();
+                chiudiDettagli();
+            }
+        }
+
+        function aggiornaCounter() {
+            document.getElementById("cnt-totale").textContent = listaLibri.length;
+            document.getElementById("cnt-lisa").textContent = listaLibri.filter(l => l.lettoLisa).length;
+            document.getElementById("cnt-fra").textContent = listaLibri.filter(l => l.lettoFra).length;
+            document.getElementById("cnt-vendere").textContent = listaLibri.filter(l => l.vendere).length;
+            document.getElementById("cnt-narrativa").textContent = listaLibri.filter(l => l.genere === "Narrativa").length;
+            document.getElementById("cnt-saggistica").textContent = listaLibri.filter(l => l.genere === "Saggistica").length;
+        }
+
+        function ordinaAlfabeticamente(libri) {
+            return libri.sort((a, b) => {
+                const cognomeA = (a.autore.split(",")[0] || a.autore).trim();
+                const cognomeB = (b.autore.split(",")[0] || b.autore).trim();
+                const cmpCognome = cognomeA.localeCompare(cognomeB, 'it', { sensitivity: 'base' });
+                if (cmpCognome !== 0) return cmpCognome;
+                return a.titolo.localeCompare(b.titolo, 'it', { sensitivity: 'base' });
+            });
+        }
+
+        function coloreTestoLeggibile(hex) {
+            if (!hex || hex[0] !== "#" || hex.length < 7) return "#ffffff";
+            const r = parseInt(hex.substr(1, 2), 16);
+            const g = parseInt(hex.substr(3, 2), 16);
+            const b = parseInt(hex.substr(5, 2), 16);
+            const luminanza = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+            return luminanza > 0.6 ? "#1a1a1a" : "#ffffff";
+        }
+
+        // Applica (o rimuove) l'effetto metallizzato animato su una "copertina" già
+        // colorata: il colore hex del libro resta sotto, invisibile, come fallback
+        // se in futuro l'effetto venisse tolto.
+        function applicaMetallizzato(el, libro) {
+            const m = (libro.metallizzato || "").toLowerCase();
+            el.classList.remove("metallizzato-oro", "metallizzato-argento");
+            if (m === "oro") {
+                el.classList.add("metallizzato-oro");
+                el.style.color = "#4a3a08";
+            } else if (m === "argento") {
+                el.classList.add("metallizzato-argento");
+                el.style.color = "#3a3a3d";
+            }
+        }
+
+        function formattaAutoreVisuale(autore) {
+            const parti = autore.split(",");
+            if (parti.length < 2) return autore.trim();
+            return `${parti[1].trim()} ${parti[0].trim()}`;
+        }
+
+        // Larghezza del dorso proporzionale alle pagine, non più a scaglioni.
+        // 14px minimo (dorso più sottile leggibile), 90px massimo, crescita lineare in mezzo.
+        const LARGHEZZA_DORSO_MIN = 14;
+        const LARGHEZZA_DORSO_MAX = 90;
+        const PAGINE_PER_PX = 14;
+
+        // "pagineVisive" nel foglio Google è una taglia (XXS-XXL), non un numero.
+        // Qui la traduciamo in un valore di pagine equivalenti, usato ovunque al posto
+        // del numero di pagine reale quando presente.
+        const TAGLIE_PAGINE = { XXS: 50, XS: 120, S: 250, M: 450, L: 700, XL: 950, XXL: 1200 };
+
+        function pagineDaTaglia(taglia) {
+            if (!taglia) return null;
+            return TAGLIE_PAGINE[String(taglia).trim().toUpperCase()] || null;
+        }
+
+        function calcolaLarghezzaDorso(pagine) {
+            if (!pagine) return LARGHEZZA_DORSO_MIN + PAGINE_STIMA_DEFAULT / PAGINE_PER_PX;
+            const larghezza = LARGHEZZA_DORSO_MIN + pagine / PAGINE_PER_PX;
+            return Math.min(LARGHEZZA_DORSO_MAX, Math.max(LARGHEZZA_DORSO_MIN, larghezza));
+        }
+
+        function renderLibreria() {
+            const container = document.getElementById("scaffali-container");
+            container.innerHTML = "";
+
+            const mensole = {};
+            listaLibri.filter(l => (l.libreria || "Krossing") === "Krossing").forEach(l => {
+                if (!mensole[l.mensola]) mensole[l.mensola] = [];
+                mensole[l.mensola].push(l);
+            });
+
+            // Libreria orizzontale: mensole 1-15, colonne 1-5, righe 1-3
+            for (let num = 1; num <= 15; num++) {
+                const riga = Math.floor((num - 1) / 5) + 1;
+                const colonna = ((num - 1) % 5) + 1;
+                creaScaffale(container, num, mensole[num] || [], colonna, riga);
+            }
+
+            // Libreria verticale: mensole 16-36, colonne 6-8, righe 1-7 (allineata in alto, affiancata a destra)
+            for (let num = 16; num <= 36; num++) {
+                const idx = num - 16;
+                const riga = Math.floor(idx / 3) + 1;
+                const colonna = 6 + (idx % 3);
+                creaScaffale(container, num, mensole[num] || [], colonna, riga);
+            }
+
+            aggiungiDecorazioni(container);
+            aggiungiQuadranti(container);
+
+            applicaFiltri();
+        }
+
+        function creaScaffale(container, numMensola, libri, colonna, riga) {
+            const mensolaDiv = document.createElement("div");
+            mensolaDiv.className = "scaffale-slot";
+            mensolaDiv.dataset.mensola = numMensola;
+            mensolaDiv.style.gridColumn = colonna;
+            mensolaDiv.style.gridRow = riga;
+
+            const titoloMensola = document.createElement("div");
+            titoloMensola.className = "mensola-titolo";
+            titoloMensola.textContent = numMensola;
+            mensolaDiv.appendChild(titoloMensola);
+
+            const settoriDiv = document.createElement("div");
+            settoriDiv.className = "mensola-settori";
+
+            const libriOrdinati = ordinaAlfabeticamente(libri);
+
+            libriOrdinati.forEach(libro => {
+                const dorso = document.createElement("div");
+                dorso.className = "dorso";
+                dorso.id = `libro-${libro.id}`;
+                dorso.style.backgroundColor = libro.colore;
+                dorso.style.color = coloreTestoLeggibile(libro.colore);
+                applicaMetallizzato(dorso, libro);
+                dorso.style.width = calcolaLarghezzaDorso(pagineDaTaglia(libro.pagineVisive) || libro.numeroPagine) + "px";
+                dorso.title = `${libro.titolo} — ${formattaAutoreVisuale(libro.autore)}`;
+
+                dorso.innerHTML = `
+                    <div class="dorso-testo-container">
+                        <span class="dorso-autore">${formattaAutoreVisuale(libro.autore)}</span>
+                        <span class="dorso-titolo">${libro.titolo}</span>
+                    </div>
+                `;
+
+                dorso.addEventListener("click", () => mostraDettagli(libro));
+                settoriDiv.appendChild(dorso);
+            });
+
+            mensolaDiv.appendChild(settoriDiv);
+            container.appendChild(mensolaDiv);
+
+            adattaLarghezzaDorsi(settoriDiv);
+        }
+
+        function adattaLarghezzaDorsi(settoriDiv) {
+            const dorsi = settoriDiv.querySelectorAll(".dorso");
+            if (dorsi.length === 0) return;
+
+            const stile = getComputedStyle(settoriDiv);
+            const disponibile = settoriDiv.clientWidth - parseFloat(stile.paddingLeft) - parseFloat(stile.paddingRight);
+            const gap = 3;
+            let totale = gap * (dorsi.length - 1);
+            dorsi.forEach(d => totale += parseFloat(d.style.width));
+
+            if (disponibile > 0 && totale > disponibile) {
+                const scala = disponibile / totale;
+                dorsi.forEach(d => {
+                    const originale = parseFloat(d.style.width);
+                    d.style.width = Math.max(6, originale * scala) + "px";
+                });
+            }
+
+            const SOGLIA_TESTO_LEGGIBILE = 30;
+            dorsi.forEach(d => {
+                d.classList.toggle("senza-testo", parseFloat(d.style.width) < SOGLIA_TESTO_LEGGIBILE);
+            });
+        }
+
+        function aggiungiDecorazioni(container) {
+            const area = document.createElement("div");
+            area.className = "decor-area";
+
+            const pianta = document.createElement("div");
+            pianta.className = "decor-pianta";
+            const foglie = document.createElement("div");
+            foglie.className = "decor-foglie";
+            for (let i = 0; i < 5; i++) foglie.appendChild(document.createElement("span"));
+            const vaso = document.createElement("div");
+            vaso.className = "decor-vaso";
+            pianta.appendChild(foglie);
+            pianta.appendChild(vaso);
+            area.appendChild(pianta);
+
+            const tvWrap = document.createElement("div");
+            tvWrap.className = "decor-tv-wrap";
+            const tv = document.createElement("div");
+            tv.className = "decor-tv";
+            tv.title = "Accendi/spegni la TV";
+            const schermoTv = document.createElement("div");
+            schermoTv.className = "decor-tv-schermo";
+            schermoTv.style.backgroundImage = `url(${IMMAGINE_TV_ACCESA})`;
+            tv.appendChild(schermoTv);
+            tv.onclick = () => tv.classList.toggle("accesa");
+            const mobile = document.createElement("div");
+            mobile.className = "decor-mobile";
+            tvWrap.appendChild(tv);
+            tvWrap.appendChild(mobile);
+            area.appendChild(tvWrap);
+
+            container.appendChild(area);
+
+            const pavimento = document.createElement("div");
+            pavimento.className = "pavimento";
+            container.appendChild(pavimento);
+        }
+
+        // Quadranti cliccabili: gruppi di scaffali su cui zoomare. Coordinate riferite
+        // alla griglia (colonna/riga di inizio e fine, incluse).
+        function posizioneMensola(num) {
+            if (num <= 15) {
+                return { colonna: ((num - 1) % 5) + 1, riga: Math.floor((num - 1) / 5) + 1 };
+            }
+            const idx = num - 16;
+            return { colonna: 6 + (idx % 3), riga: Math.floor(idx / 3) + 1 };
+        }
+
+        const QUADRANTI = Array.from({ length: 36 }, (_, i) => {
+            const n = i + 1;
+            const { colonna, riga } = posizioneMensola(n);
+            return { colStart: colonna, colEnd: colonna, rowStart: riga, rowEnd: riga, mensole: [n] };
+        });
+
+        function aggiungiQuadranti(container) {
+            QUADRANTI.forEach((q, idx) => {
+                const hit = document.createElement("div");
+                hit.className = "quadrante-hit";
+                hit.style.gridColumn = `${q.colStart} / ${q.colEnd + 1}`;
+                hit.style.gridRow = `${q.rowStart} / ${q.rowEnd + 1}`;
+                hit.addEventListener("click", () => vaiAQuadrante(idx));
+                container.appendChild(hit);
+            });
+        }
+
+        function libroPassaFiltri(libro) {
+            const vRicerca = document.getElementById("ricerca-titolo").value.toLowerCase().trim();
+            const vGenere = document.getElementById("filtro-genere").value;
+            const vSottogenere = document.getElementById("filtro-sottogenere").value;
+            const vEditore = document.getElementById("filtro-editore").value;
+            const vLingua = document.getElementById("filtro-lingua").value;
+            const vDaLeggere = document.getElementById("filtro-da-leggere").value;
+
+            const matchRicerca = !vRicerca || String(libro.titolo).toLowerCase().includes(vRicerca) || String(libro.autore).toLowerCase().includes(vRicerca);
+            const matchGenere = !vGenere || libro.genere === vGenere;
+            const matchSottogenere = !vSottogenere || (libro.sottogenere || "").split(",").map(v => v.trim()).includes(vSottogenere);
+            const matchEditore = !vEditore || libro.editore === vEditore;
+            const matchLingua = !vLingua || libro.lingua === vLingua;
+            const matchDaLeggere = !vDaLeggere || (vDaLeggere === "Fra" ? !libro.lettoFra : !libro.lettoLisa);
+
+            return matchRicerca && matchGenere && matchSottogenere && matchEditore && matchLingua && matchDaLeggere;
+        }
+
+        let libroEvidenziatoId = null;
+
+        function applicaFiltri() {
+            if (libroEvidenziatoId !== null) {
+                applicaEvidenziazione();
+                return;
+            }
+
+            const vRicerca = document.getElementById("ricerca-titolo").value.toLowerCase().trim();
+
+            // Se il testo cercato non matcha nessun libro della libreria che sto
+            // guardando, ma matcha un libro nell'altra libreria, ci si sposta lì
+            // automaticamente invece di mostrare una vista vuota.
+            if (vRicerca) {
+                const cercaTesto = l => String(l.titolo).toLowerCase().includes(vRicerca) || String(l.autore).toLowerCase().includes(vRicerca);
+                const presenteQui = listaLibri.some(l => (l.libreria || "Krossing") === libreriaAttiva && cercaTesto(l));
+                if (!presenteQui) {
+                    const altrove = listaLibri.find(l => (l.libreria || "Krossing") !== libreriaAttiva && cercaTesto(l));
+                    if (altrove) {
+                        cambiaLibreria();
+                        applicaFiltri();
+                        return;
+                    }
+                }
+            }
+
+            listaLibri.forEach(libro => {
+                const el = document.getElementById(`libro-${libro.id}`);
+                if (!el) return;
+
+                if (libroPassaFiltri(libro)) {
+                    el.classList.remove("desaturato");
+                } else {
+                    el.classList.add("desaturato");
+                }
+            });
+
+            if (quadranteAttivo && quadranteAttivo.startsWith("scaffale-")) {
+                mostraScaffaleSingolo(Number(quadranteAttivo.replace("scaffale-", "")));
+            }
+
+            const vDaLeggere = document.getElementById("filtro-da-leggere").value;
+            const parti = [];
+            if (vDaLeggere) parti.push("non letti da " + vDaLeggere);
+            document.getElementById("filtro-microcopy").textContent = parti.length ? "Mostra i libri " + parti.join(", ") : "";
+        }
+
+        function popolaFiltriDinamici() {
+            const libri = listaLibri.filter(l => (l.libreria || "Krossing") === "Krossing");
+            const distinti = campo => [...new Set(libri.map(l => (l[campo] || "").trim()).filter(v => v))].sort((a, b) => a.localeCompare(b, 'it'));
+            const distintiSpezzati = campo => [...new Set(
+                libri.flatMap(l => (l[campo] || "").split(",").map(v => v.trim()).filter(v => v))
+            )].sort((a, b) => a.localeCompare(b, 'it'));
+
+            riempiSelect("filtro-sottogenere", distintiSpezzati("sottogenere"));
+            riempiSelect("filtro-editore", distinti("editore"));
+            riempiSelect("filtro-lingua", distinti("lingua"));
+        }
+
+        function riempiSelect(id, valori) {
+            const sel = document.getElementById(id);
+            const precedente = sel.value;
+            const primaOpzione = sel.querySelector("option");
+            sel.innerHTML = "";
+            sel.appendChild(primaOpzione);
+            valori.forEach(v => {
+                const opt = document.createElement("option");
+                opt.value = v;
+                opt.textContent = v;
+                sel.appendChild(opt);
+            });
+            if (valori.includes(precedente)) sel.value = precedente;
+        }
+
+        function evidenziaLibro(id) {
+            const libro = listaLibri.find(l => l.id === id);
+            if (!libro) return;
+
+            chiudiDettagli();
+
+            // Uno spotlight vecchio (libroEvidenziatoId) non deve restare appeso:
+            // altrimenti al prossimo giro su Krossing applicaFiltri() lo riapplica
+            // da solo, mostrando in evidenza un libro che non c'entra nulla con
+            // la ricerca appena fatta.
+            libroEvidenziatoId = null;
+
+            if (libro.libreria === "Hiro") {
+                if (libreriaAttiva !== "Hiro") cambiaLibreria();
+                mostraHiroMensola(libro.mensola);
+                evidenziaLibroHiro(id);
+                return;
+            }
+
+            if (libreriaAttiva !== "Krossing") cambiaLibreria();
+
+            libroEvidenziatoId = id;
+            vistaPanoramica();
+            applicaEvidenziazione();
+            document.getElementById("btn-panoramica").style.visibility = "visible";
+        }
+
+        function evidenziaLibroHiro(id) {
+            // Trova il libro nella mensola già aperta e lo segnala con un
+            // bordo pulsante temporaneo, così "Trova" dà un riscontro visibile
+            // anche per i libri di Hiro (prima non succedeva nulla).
+            setTimeout(() => {
+                const el = document.getElementById(`libro-${id}`);
+                if (!el) return;
+                el.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+                el.classList.add("libro-evidenziato-hiro");
+                setTimeout(() => el.classList.remove("libro-evidenziato-hiro"), 2800);
+            }, 60);
+        }
+
+        function tornaAllaPanoramica() {
+            if (libroEvidenziatoId !== null) {
+                libroEvidenziatoId = null;
+                vistaPanoramica();
+                applicaFiltri();
+            } else {
+                vistaPanoramica();
+            }
+        }
+
+        function applicaEvidenziazione() {
+            if (libroEvidenziatoId === null) return;
+            listaLibri.forEach(libro => {
+                const el = document.getElementById(`libro-${libro.id}`);
+                if (!el) return;
+                if (libro.id === libroEvidenziatoId) {
+                    el.classList.remove("desaturato");
+                } else {
+                    el.classList.add("desaturato");
+                }
+            });
+        }
+
+        function mostraDettagli(libro) {
+            document.getElementById("dettagli-body").innerHTML = `
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">${libro.titolo}</h3>
+                <p style="margin-bottom: 8px;"><strong>Autore:</strong> ${formattaAutoreVisuale(libro.autore)}</p>
+                <p style="margin-bottom: 8px;"><strong>Editore:</strong> ${libro.editore}</p>
+                <p style="margin-bottom: 8px;"><strong>Anno:</strong> ${libro.anno || "n.d."}</p>
+                <p style="margin-bottom: 8px;"><strong>Genere:</strong> ${libro.genere || "n.d."}</p>
+                <p style="margin-bottom: 8px;"><strong>Sottogenere:</strong> ${libro.sottogenere || "n.d."}</p>
+                <p style="margin-bottom: 8px;"><strong>Lingua:</strong> ${libro.lingua || "n.d."}</p>
+                <p style="margin-bottom: 8px;"><strong>Libreria:</strong> ${libro.libreria || "Krossing"}</p>
+                <p style="margin-bottom: 8px;"><strong>Pagine:</strong> ${libro.numeroPagine || "n.d."}</p>
+                <p style="margin-bottom: 8px;"><strong>Posizione:</strong> Mensola ${libro.mensola}</p>
+                <p style="margin-bottom: 8px;"><strong>Lettura:</strong> Lisa: ${libro.lettoLisa ? '✓' : '✗'} | Fra: ${libro.lettoFra ? '✓' : '✗'}</p>
+                <p style="margin-bottom: 8px;"><strong>In vendita:</strong> ${libro.vendere ? 'Sì' : 'No'}</p>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button class="btn-salva-libro" style="margin-top:0;" onclick="apriFormModifica('${libro.id}')">✏️ Modifica</button>
+                    <button class="btn-elimina" style="margin-top:0;" onclick="eliminaLibro('${libro.id}')">🗑️ Elimina</button>
+                    <button class="btn-apri-form" style="margin-top:0; background:#e67e22;" onclick="evidenziaLibro('${libro.id}')">🎯 Trova</button>
+                </div>
+            `;
+            document.getElementById("overlay-dettagli").classList.add("attiva");
+        }
+
+        function toggleControlli() {
+            const el = document.getElementById("filtri-container");
+            el.style.display = el.style.display === "none" ? "block" : "none";
+        }
+
+        function toggleStats() {
+            const el = document.getElementById("stats-bar");
+            el.style.display = el.style.display === "none" ? "flex" : "none";
+        }
+
+        function cambiaLibreria() {
+            // Per ora due sole librerie: alterna direttamente. Quando ce ne saranno
+            // altre, qui andrà sostituito con una scelta tra più opzioni.
+            if (libreriaAttiva === "Krossing") {
+                libreriaAttiva = "Hiro";
+                document.querySelector(".parete-wrapper").style.display = "none";
+                document.getElementById("vista-scaffale").classList.remove("attiva");
+                document.querySelector(".zoom-controls").style.display = "none";
+                document.getElementById("hiro-wrapper").style.display = "block";
+                document.getElementById("hiro-zoom").style.display = "none";
+                document.getElementById("hiro-panoramica").style.display = "block";
+                renderHiroPanoramica();
+            } else {
+                libreriaAttiva = "Krossing";
+                document.getElementById("hiro-wrapper").style.display = "none";
+                document.querySelector(".zoom-controls").style.display = "flex";
+                document.querySelector(".parete-wrapper").style.display = "block";
+                vistaPanoramica();
+            }
+        }
+
+        const SOGLIA_TESTO_HIRO = 18;
+
+        function spessoreLibroPiatto(libro) {
+            const p = pagineDaTaglia(libro.pagineVisive) || libro.numeroPagine;
+            if (!p) return 24;
+            if (p < 100) return 20;
+            if (p < 200) return 30;
+            if (p <= 350) return 42;
+            if (p <= 600) return 56;
+            if (p <= 1000) return 72;
+            return 86;
+        }
+
+        const TITOLI_DECOR_HIRO = {
+            tartaruga: "Lampada tartaruga (segnaposto, da rifinire)",
+            macchina: "Macchina da scrivere (segnaposto, da rifinire)",
+            casetta: "Casetta in miniatura (segnaposto, da rifinire)",
+            studio: "Studio in miniatura (segnaposto, da rifinire)"
+        };
+
+        function creaDecorHiro(tipo) {
+            const d = document.createElement("div");
+            d.className = "hiro-decor-" + tipo;
+            d.title = TITOLI_DECOR_HIRO[tipo] || tipo;
+            return d;
+        }
+
+        function creaBarraLibroPiatto(libro) {
+            const barra = document.createElement("div");
+            barra.className = "hiro-libro-piatto";
+            barra.id = `libro-${libro.id}`;
+            const h = spessoreLibroPiatto(libro);
+            barra.style.height = h + "px";
+            const colore = libro.colore || "#B9B7B0";
+            barra.style.backgroundColor = colore;
+            barra.style.color = coloreTestoLeggibile(colore);
+            applicaMetallizzato(barra, libro);
+            if (h >= SOGLIA_TESTO_HIRO) {
+                const testo = document.createElement("span");
+                testo.className = "hiro-libro-piatto-testo";
+                testo.textContent = libro.titolo;
+                barra.appendChild(testo);
+            }
+            barra.title = `${libro.titolo} — ${formattaAutoreVisuale(libro.autore)}`;
+            barra.onclick = () => mostraDettagli(libro);
+            return barra;
+        }
+
+        // Larghezza di base della pila di libri piatti nello zoom Hiro.
+        // Non replica più in scala fissa la panoramica: qui puntiamo a riempire
+        // bene il ripiano, evitando scroll inutili sulle mensole poco piene.
+        const LARGHEZZA_PILA_HIRO_PX = 260;
+
+        function larghezzaPilaHiro(numMensola) {
+            return LARGHEZZA_PILA_HIRO_PX;
+        }
+
+        function costruisciRipianoPiatto(numMensola, libri, opzioni) {
+            opzioni = opzioni || {};
+            const ripiano = document.createElement("div");
+            ripiano.className = "hiro-ripiano";
+
+            const numero = document.createElement("div");
+            numero.className = "hiro-num-mensola";
+            numero.textContent = numMensola;
+            ripiano.appendChild(numero);
+
+            // Decorazione accanto ai libri, a sinistra della pila (es. studio in miniatura)
+            if (opzioni.accantoSinistra) {
+                ripiano.appendChild(creaDecorHiro(opzioni.accantoSinistra));
+            }
+
+            const unit = document.createElement("div");
+            unit.className = "hiro-pila-unit";
+
+            // Decorazione appoggiata sopra la pila (solo la tartaruga)
+            if (opzioni.sopra) {
+                const decorRow = document.createElement("div");
+                decorRow.className = "hiro-decor-row";
+                decorRow.appendChild(creaDecorHiro(opzioni.sopra));
+                unit.appendChild(decorRow);
+            }
+
+            const pila = document.createElement("div");
+            pila.className = "hiro-pila";
+            pila.style.width = larghezzaPilaHiro(numMensola) + "px";
+            (libri || []).forEach(libro => pila.appendChild(creaBarraLibroPiatto(libro)));
+            unit.appendChild(pila);
+
+            ripiano.appendChild(unit);
+
+            // Decorazione accanto ai libri, a destra della pila (es. macchina da scrivere, casetta)
+            if (opzioni.accantoDestra) {
+                ripiano.appendChild(creaDecorHiro(opzioni.accantoDestra));
+            }
+
+            return ripiano;
+        }
+
+        function costruisciRipianoVerticale(numMensola, libri) {
+            const ripiano = document.createElement("div");
+            ripiano.className = "hiro-ripiano hiro-ripiano-verticale";
+
+            const numero = document.createElement("div");
+            numero.className = "hiro-num-mensola";
+            numero.textContent = numMensola;
+            ripiano.appendChild(numero);
+
+            const fila = document.createElement("div");
+            fila.className = "hiro-fila-verticale";
+            (libri || []).forEach(libro => {
+                const dorso = document.createElement("div");
+                dorso.className = "dorso dorso-grande";
+                dorso.id = `libro-${libro.id}`;
+                const colore = libro.colore || "#B9B7B0";
+                dorso.style.backgroundColor = colore;
+                dorso.style.color = coloreTestoLeggibile(colore);
+                applicaMetallizzato(dorso, libro);
+                const larg = calcolaLarghezzaDorso(pagineDaTaglia(libro.pagineVisive) || libro.numeroPagine) * 2.0;
+                dorso.style.width = larg + "px";
+                if (larg >= SOGLIA_TESTO_HIRO) dorso.textContent = libro.titolo;
+                dorso.title = `${libro.titolo} — ${formattaAutoreVisuale(libro.autore)}`;
+                dorso.onclick = () => mostraDettagli(libro);
+                fila.appendChild(dorso);
+            });
+            ripiano.appendChild(fila);
+            return ripiano;
+        }
+
+        const OPZIONI_RIPIANO_HIRO = {
+            37: { sopra: "tartaruga", accantoDestra: "macchina" },
+            38: { accantoDestra: "casetta" },
+            39: { accantoSinistra: "studio" }
+        };
+
+        function libriPerMensolaHiro(numMensola) {
+            return listaLibri.filter(l => l.libreria === "Hiro" && l.mensola === numMensola);
+        }
+
+        function riempiZonaHiro(numMensola, direzione) {
+            const zona = document.getElementById(`hiro-zona-${numMensola}`);
+            zona.innerHTML = "";
+            zona.style.flexDirection = direzione === "pila" ? "column-reverse" : "row";
+            zona.onclick = () => mostraHiroMensola(numMensola);
+
+            libriPerMensolaHiro(numMensola).forEach(libro => {
+                const blocco = document.createElement("div");
+                blocco.className = "hiro-zona-libro";
+                blocco.id = `libro-${libro.id}`;
+                const peso = pagineDaTaglia(libro.pagineVisive) || libro.numeroPagine || 100;
+                blocco.style.flex = `${peso} 0 0`;
+                blocco.style.backgroundColor = libro.colore || "#B9B7B0";
+                applicaMetallizzato(blocco, libro);
+                if (direzione === "pila") {
+                    blocco.style.width = "100%";
+                } else {
+                    blocco.style.height = "100%";
+                }
+                zona.appendChild(blocco);
+            });
+        }
+
+        function renderHiroPanoramica() {
+            riempiZonaHiro(37, "pila");
+            riempiZonaHiro(38, "pila");
+            riempiZonaHiro(39, "pila");
+            riempiZonaHiro(40, "fila");
+        }
+
+        function mostraHiroMensola(numMensola) {
+            document.getElementById("hiro-panoramica").style.display = "none";
+            document.getElementById("hiro-zoom").style.display = "block";
+
+            const container = document.getElementById("hiro-container");
+            container.innerHTML = "";
+
+            const libri = libriPerMensolaHiro(numMensola);
+            const ripiano = numMensola === 40
+                ? costruisciRipianoVerticale(40, libri)
+                : costruisciRipianoPiatto(numMensola, libri, OPZIONI_RIPIANO_HIRO[numMensola]);
+
+            container.appendChild(ripiano);
+        }
+
+        function tornaAllaPanoramicaHiro() {
+            document.getElementById("hiro-zoom").style.display = "none";
+            document.getElementById("hiro-panoramica").style.display = "block";
+        }
+
+        function apriRicercaMobile() {
+            const input = document.getElementById("ricerca-titolo-mobile");
+            input.value = "";
+            document.getElementById("risultati-ricerca-mobile").innerHTML = "";
+            document.getElementById("overlay-ricerca-mobile").classList.add("attiva");
+            setTimeout(() => input.focus(), 50);
+        }
+
+        function chiudiRicercaMobile() {
+            document.getElementById("overlay-ricerca-mobile").classList.remove("attiva");
+        }
+
+        function filtraRicercaMobile() {
+            const v = document.getElementById("ricerca-titolo-mobile").value.toLowerCase().trim();
+            const risultatiDiv = document.getElementById("risultati-ricerca-mobile");
+
+            if (!v) {
+                risultatiDiv.innerHTML = "";
+                return;
+            }
+
+            const match = listaLibri.filter(l =>
+                String(l.titolo).toLowerCase().includes(v) || String(l.autore).toLowerCase().includes(v)
+            ).slice(0, 40);
+
+            if (match.length === 0) {
+                risultatiDiv.innerHTML = `<div class="risultato-ricerca-vuoto">Nessun risultato</div>`;
+                return;
+            }
+
+            risultatiDiv.innerHTML = match.map(l => `
+                <div class="risultato-ricerca" onclick="apriDaRicercaMobile('${l.id}')">
+                    <span class="pallino-colore" style="background:${l.colore || '#ccc'};"></span>
+                    <span style="flex:1; min-width:0;">
+                        <div class="risultato-titolo">${l.titolo}</div>
+                        <div class="risultato-sotto">${formattaAutoreVisuale(l.autore)} · Mensola ${l.mensola ?? "-"}</div>
+                    </span>
+                </div>
+            `).join("");
+        }
+
+        function apriDaRicercaMobile(id) {
+            const libro = listaLibri.find(l => l.id === id);
+            if (!libro) return;
+            chiudiRicercaMobile();
+            mostraDettagli(libro);
+        }
+
+        let scalaPanoramica = 0.45;
+        let quadranteAttivo = null;
+
+        function dimensioniWrapper() {
+            const wrapper = document.querySelector(".parete-wrapper");
+            const spazioSopra = wrapper.getBoundingClientRect().top;
+            const w = wrapper.clientWidth;
+            const h = (window.innerHeight - spazioSopra - 12);
+            wrapper.style.height = h + "px";
+            return { w, h };
+        }
+
+        function vistaPanoramica() {
+            document.getElementById("vista-scaffale").classList.remove("attiva");
+            document.querySelector(".parete-wrapper").style.display = "block";
+
+            const container = document.getElementById("scaffali-container");
+            const { w, h } = dimensioniWrapper();
+
+            if (window.matchMedia("(orientation: portrait)").matches) {
+                // Test versione verticale: dimensione naturale, si esplora scorrendo/pizzicando.
+                container.style.transform = "none";
+                scalaPanoramica = 1;
+            } else {
+                container.style.transform = "none";
+                const naturaleW = container.offsetWidth;
+                const naturaleH = container.offsetHeight;
+
+                const fit = Math.min((w * 0.99) / naturaleW, (h * 0.99) / naturaleH);
+                scalaPanoramica = Math.max(0.1, fit);
+
+                const tx = (w - naturaleW * scalaPanoramica) / 2;
+                const ty = (h - naturaleH * scalaPanoramica) / 2;
+                container.style.transform = `translate(${tx}px, ${ty}px) scale(${scalaPanoramica})`;
+            }
+
+            container.classList.remove("vista-quadrante");
+            quadranteAttivo = null;
+            document.getElementById("btn-panoramica").style.visibility = "hidden";
+        }
+
+        function vaiAQuadrante(idx) {
+            const q = QUADRANTI[idx];
+            mostraScaffaleSingolo(q.mensole[0]);
+        }
+
+        function mostraScaffaleSingolo(numMensola) {
+            document.querySelector(".parete-wrapper").style.display = "none";
+            const vista = document.getElementById("vista-scaffale");
+            vista.classList.add("attiva");
+            vista.innerHTML = "";
+
+            const titolo = document.createElement("div");
+            titolo.className = "vista-scaffale-titolo";
+            titolo.textContent = `Mensola ${numMensola}`;
+            vista.appendChild(titolo);
+
+            const row = document.createElement("div");
+            row.className = "vista-scaffale-libri";
+
+            const libri = ordinaAlfabeticamente(
+                listaLibri.filter(l => l.mensola === numMensola && (l.libreria || "Krossing") === "Krossing")
+            );
+
+            libri.forEach(libro => {
+                const dorso = document.createElement("div");
+                dorso.className = "dorso dorso-grande";
+                dorso.id = `libro-${libro.id}`;
+                if (!libroPassaFiltri(libro)) dorso.classList.add("desaturato");
+                dorso.style.backgroundColor = libro.colore;
+                dorso.style.color = coloreTestoLeggibile(libro.colore);
+                applicaMetallizzato(dorso, libro);
+                dorso.style.width = (calcolaLarghezzaDorso(pagineDaTaglia(libro.pagineVisive) || libro.numeroPagine) * 2.0) + "px";
+                dorso.title = `${libro.titolo} — ${formattaAutoreVisuale(libro.autore)}`;
+                dorso.innerHTML = `
+                    <div class="dorso-testo-container">
+                        <span class="dorso-autore">${formattaAutoreVisuale(libro.autore)}</span>
+                        <span class="dorso-titolo">${libro.titolo}</span>
+                    </div>
+                `;
+                dorso.addEventListener("click", () => mostraDettagli(libro));
+                row.appendChild(dorso);
+            });
+
+            if (libri.length === 0) {
+                row.innerHTML = '<p style="color:#999; padding: 10px;">Nessun libro assegnato a questa mensola.</p>';
+            }
+
+            vista.appendChild(row);
+            quadranteAttivo = "scaffale-" + numMensola;
+            document.getElementById("btn-panoramica").style.visibility = "visible";
+        }
+
+        window.addEventListener("resize", () => {
+            if (quadranteAttivo === null) vistaPanoramica();
+        });
+
+        function apriFormModifica(id) {
+            const libro = listaLibri.find(l => l.id === id);
+            if (libro) {
+                chiudiDettagli();
+                apriFormPagina(libro);
+            }
+        }
+
+        const COLONNE_CSV = ["id", "titolo", "autore", "editore", "anno", "genere", "sottogenere", "lingua", "libreria", "mensola", "numeroPagine", "pagineVisive", "metallizzato", "lettoLisa", "lettoFra", "vendere", "colore", "coloreTesto", "dataInserimento"];
+
+        function libriToCSV(libri) {
+            const escape = v => {
+                if (v === null || v === undefined) return "";
+                const s = String(v);
+                if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+                return s;
+            };
+            const righe = [COLONNE_CSV.join(",")];
+            libri.forEach(l => righe.push(COLONNE_CSV.map(c => escape(l[c])).join(",")));
+            return righe.join("\r\n");
+        }
+
+        function parseCSV(testo) {
+            const righe = [];
+            let riga = [], campo = "", inQuote = false;
+            for (let i = 0; i < testo.length; i++) {
+                const c = testo[i];
+                if (inQuote) {
+                    if (c === '"') {
+                        if (testo[i + 1] === '"') { campo += '"'; i++; }
+                        else inQuote = false;
+                    } else campo += c;
+                } else if (c === '"') {
+                    inQuote = true;
+                } else if (c === ',') {
+                    riga.push(campo); campo = "";
+                } else if (c === '\n' || c === '\r') {
+                    if (c === '\r' && testo[i + 1] === '\n') i++;
+                    riga.push(campo); campo = "";
+                    if (riga.length > 1 || riga[0] !== "") righe.push(riga);
+                    riga = [];
+                } else {
+                    campo += c;
+                }
+            }
+            if (campo !== "" || riga.length > 0) { riga.push(campo); righe.push(riga); }
+            return righe;
+        }
+
+        function veroDaCSV(v) {
+            return ["true", "1", "vero", "x", "si", "sì"].includes((v || "").toString().trim().toLowerCase());
+        }
+
+        function csvToLibri(testo) {
+            const righe = parseCSV(testo);
+            const header = righe[0].map(h => h.trim());
+            const report = { idNonNumerici: 0, coloreRecuperato: 0, senzaColore: 0, senzaMensola: 0 };
+
+            const libri = righe.slice(1).map((r, idx) => {
+                const obj = {};
+                header.forEach((h, i) => obj[h] = r[i] !== undefined ? r[i] : "");
+
+                let id;
+                if (/^\d+$/.test((obj.id || "").trim())) {
+                    id = parseInt(obj.id);
+                } else {
+                    id = Date.now() + idx;
+                    report.idNonNumerici++;
+                }
+
+                let colore = (obj.colore || "").trim();
+                // errore di compilazione noto: un codice colore finito per sbaglio nella vecchia colonna "sezione"
+                if (!colore && obj.sezione && obj.sezione.trim().startsWith("#")) {
+                    colore = obj.sezione.trim();
+                    report.coloreRecuperato++;
+                }
+                if (!colore) {
+                    colore = "#8A9A86";
+                    report.senzaColore++;
+                }
+
+                const mensola = obj.mensola && obj.mensola.trim() ? parseInt(obj.mensola) : null;
+                if (mensola === null) report.senzaMensola++;
+
+                return {
+                    id,
+                    titolo: obj.titolo || "",
+                    autore: obj.autore || "",
+                    editore: obj.editore || "N.D.",
+                    anno: obj.anno ? parseInt(obj.anno) : null,
+                    genere: obj.genere || "Narrativa",
+                    sottogenere: obj.sottogenere || "",
+                    lingua: obj.lingua || "",
+                    libreria: obj.libreria || "Krossing",
+                    mensola,
+                    numeroPagine: (obj.numeroPagine || obj.pagine) ? parseInt(obj.numeroPagine || obj.pagine) : null,
+                    pagineVisive: obj.pagineVisive && obj.pagineVisive.trim() ? obj.pagineVisive.trim().toUpperCase() : null,
+                    metallizzato: obj.metallizzato ? obj.metallizzato.trim().toLowerCase() : "",
+                    lettoLisa: veroDaCSV(obj.lettoLisa),
+                    lettoFra: veroDaCSV(obj.lettoFra),
+                    vendere: veroDaCSV(obj.vendere),
+                    colore,
+                    coloreTesto: obj.coloreTesto || "white",
+                    dataInserimento: obj.dataInserimento || new Date().toISOString().slice(0, 10)
+                };
+            });
+
+            libri.report = report;
+            return libri;
+        }
+
+        function esportaLibri() {
+            const blob = new Blob([JSON.stringify(listaLibri, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "libri.json";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function esportaLibriCSV() {
+            const csv = libriToCSV(listaLibri);
+            const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "libri.csv";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importaLibri(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const isCSV = file.name.toLowerCase().endsWith(".csv");
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let dati;
+                    if (isCSV) {
+                        dati = csvToLibri(e.target.result);
+                    } else {
+                        dati = JSON.parse(e.target.result);
+                        if (!Array.isArray(dati)) throw new Error("Formato non valido");
+                    }
+                    listaLibri = dati.map ? dati.map(normalizzaLibro) : dati;
+                    salvaSuLocalStorage();
+                    aggiornaCounter();
+                    popolaFiltriDinamici();
+                    renderLibreria();
+                    vistaPanoramica();
+
+                    let msg = `Importati ${dati.length} libri.`;
+                    if (dati.report) {
+                        const r = dati.report;
+                        if (r.coloreRecuperato) msg += `\n${r.coloreRecuperato} colori recuperati dalla vecchia colonna "sezione".`;
+                        if (r.senzaColore) msg += `\n${r.senzaColore} libri senza colore (usato il grigio-verde di default).`;
+                        if (r.idNonNumerici) msg += `\n${r.idNonNumerici} id non numerici, rigenerati automaticamente.`;
+                        if (r.senzaMensola) msg += `\n${r.senzaMensola} libri senza mensola assegnata: non compaiono sulla parete finché non gliela dai.`;
+                    }
+                    alert(msg);
+                } catch (err) {
+                    alert("File non valido: " + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = "";
+        }
+
+        function chiudiDettagli() {
+            document.getElementById("overlay-dettagli").classList.remove("attiva");
+        }
+
+        document.querySelectorAll(".filtri-container input, .filtri-container select, #ricerca-titolo").forEach(el => {
+            const gestisciInterazione = () => {
+                // Se l'utente sta filtrando/cercando di nuovo, uno spotlight "Trova"
+                // rimasto acceso da prima non deve più avere la priorità: altrimenti
+                // applicaFiltri() ignora silenziosamente la nuova ricerca e continua
+                // a mostrare in evidenza solo il vecchio libro.
+                libroEvidenziatoId = null;
+                applicaFiltri();
+            };
+            el.addEventListener("input", gestisciInterazione);
+            el.addEventListener("change", gestisciInterazione);
+        });
+
+        inizializzaDati();
+    </script>
+</body>
+</html>
