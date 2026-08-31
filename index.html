@@ -1578,7 +1578,7 @@
                     }, 300);
                 } else {
                     listaLibri = libriIniziali.map(normalizzaLibro);
-                    salvaSuLocalStorage();
+                    salvaSoloLocale();
                     console.warn("Google Sheet irraggiungibile e nessuna copia salvata su questo dispositivo: sto mostrando i libri di esempio.");
                     setTimeout(() => {
                         alert("Non sono riuscito a raggiungere il foglio Google e questo dispositivo non ha una copia salvata.\n\nStai vedendo un piccolo catalogo di ESEMPIO, non la tua libreria vera. Controlla la connessione e ricarica la pagina.");
@@ -1592,12 +1592,16 @@
             vistaPanoramica();
         }
 
-        function salvaSuLocalStorage() {
+        function salvaSoloLocale() {
             try {
                 localStorage.setItem("crossing_libri", JSON.stringify(listaLibri));
             } catch (e) {
                 console.warn("localStorage non disponibile: le modifiche non verranno salvate in questa sessione.", e);
             }
+        }
+
+        function salvaSuLocalStorage() {
+            salvaSoloLocale();
             // Salva anche su Google in background (asincrono, non blocca)
             salvaSuGoogle().catch(err => console.warn("Errore background Google save:", err));
         }
