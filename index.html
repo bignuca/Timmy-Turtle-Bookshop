@@ -1465,19 +1465,19 @@
         let idInModifica = null;
         let libreriaAttiva = "Krossing";
 
-        function caricaDaGoogle() {
+        function caricaDaGoogle(timeoutMs = 20000) {
             return new Promise((resolve) => {
-                const nomeCallback = "callbackGoogle_" + Date.now();
+                const nomeCallback = "callbackGoogle_" + Date.now() + "_" + Math.random().toString(36).slice(2);
                 let risolto = false;
 
                 const timeoutId = setTimeout(() => {
                     if (!risolto) {
                         risolto = true;
-                        console.warn("Timeout nel caricamento da Google Sheet");
+                        console.warn(`Timeout (${timeoutMs / 1000}s) nel caricamento da Google Sheet`);
                         pulisci();
                         resolve(null);
                     }
-                }, 10000);
+                }, timeoutMs);
 
                 function pulisci() {
                     delete window[nomeCallback];
@@ -1513,6 +1513,20 @@
             });
         }
 
+        // Google Apps Script può essere lento a "svegliarsi" (cold start) la prima
+        // volta dopo un po' di inattività, a volte oltre 10s. Un solo tentativo con
+        // timeout breve rischia di far scattare il fallback ai dati di prova anche
+        // quando i dati veri sarebbero arrivati un secondo dopo. Ritentiamo una volta
+        // prima di arrenderci davvero.
+        async function caricaDaGoogleConRiprova() {
+            let dati = await caricaDaGoogle(20000);
+            if (!dati) {
+                console.warn("Primo tentativo fallito, riprovo una seconda volta...");
+                dati = await caricaDaGoogle(20000);
+            }
+            return dati;
+        }
+
         async function salvaSuGoogle() {
             try {
                 await fetch(GOOGLE_APPS_SCRIPT_URL, {
@@ -1530,7 +1544,7 @@
         }
 
         async function inizializzaDati() {
-            const datiGoogle = await caricaDaGoogle();
+            const datiGoogle = await caricaDaGoogleConRiprova();
             problemiNormalizzazione = [];
 
             if (datiGoogle && datiGoogle.length > 0) {
@@ -1558,9 +1572,17 @@
                 }
                 if (salvataggio) {
                     listaLibri = JSON.parse(salvataggio).map(normalizzaLibro);
+                    console.warn("Google Sheet irraggiungibile: uso l'ultima copia salvata su questo dispositivo.");
+                    setTimeout(() => {
+                        alert("Non sono riuscito a raggiungere il foglio Google (rete lenta o momentaneamente non disponibile).\n\nSto mostrando l'ultima copia salvata su questo dispositivo, che potrebbe non essere aggiornata. Ricarica la pagina per riprovare.");
+                    }, 300);
                 } else {
                     listaLibri = libriIniziali.map(normalizzaLibro);
                     salvaSuLocalStorage();
+                    console.warn("Google Sheet irraggiungibile e nessuna copia salvata su questo dispositivo: sto mostrando i libri di esempio.");
+                    setTimeout(() => {
+                        alert("Non sono riuscito a raggiungere il foglio Google e questo dispositivo non ha una copia salvata.\n\nStai vedendo un piccolo catalogo di ESEMPIO, non la tua libreria vera. Controlla la connessione e ricarica la pagina.");
+                    }, 300);
                 }
             }
 
