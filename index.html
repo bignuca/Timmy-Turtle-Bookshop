@@ -887,6 +887,22 @@
 
         .btn-elimina:hover { background: #c0392b; }
 
+.btn-toggle-lettura {
+    border: 2px solid #bbb;
+    background: white;
+    color: #555;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-toggle-lettura.letto {
+    background: #2ecc71;
+    border-color: #2ecc71;
+    color: white;
+}
         /* OVERLAY RUOTA IL TELEFONO (solo mobile verticale) */
         .overlay-ruota {
             display: none;
@@ -2107,7 +2123,19 @@
                 }
             });
         }
-
+function toggleLettura(id, chi) {
+    const libro = listaLibri.find(l => l.id === id);
+    if (!libro) return;
+    if (chi === "fra") {
+        libro.lettoFra = !libro.lettoFra;
+    } else if (chi === "lisa") {
+        libro.lettoLisa = !libro.lettoLisa;
+    }
+    salvaSuLocalStorage();
+    aggiornaCounter();
+    applicaFiltri();
+    mostraDettagli(libro);
+}
         function mostraDettagli(libro) {
             document.getElementById("dettagli-body").innerHTML = `
                 <h3 style="margin-bottom: 15px; color: #2c3e50;">${libro.titolo}</h3>
@@ -2120,8 +2148,13 @@
                 <p style="margin-bottom: 8px;"><strong>Libreria:</strong> ${libro.libreria || "Krossing"}</p>
                 <p style="margin-bottom: 8px;"><strong>Pagine:</strong> ${libro.numeroPagine || "n.d."}</p>
                 <p style="margin-bottom: 8px;"><strong>Posizione:</strong> Mensola ${libro.mensola}</p>
-                <p style="margin-bottom: 8px;"><strong>Lettura:</strong> Lisa: ${libro.lettoLisa ? '✓' : '✗'} | Fra: ${libro.lettoFra ? '✓' : '✗'}</p>
-                <p style="margin-bottom: 8px;"><strong>In vendita:</strong> ${libro.vendere ? 'Sì' : 'No'}</p>
+<div style="margin-bottom: 8px;">
+    <strong>Lettura:</strong>
+    <div style="display:flex; gap:8px; margin-top:6px;">
+        <button class="btn-toggle-lettura ${libro.lettoFra ? 'letto' : ''}" onclick="toggleLettura('${libro.id}', 'fra')">${libro.lettoFra ? '✓' : '○'} Fra</button>
+        <button class="btn-toggle-lettura ${libro.lettoLisa ? 'letto' : ''}" onclick="toggleLettura('${libro.id}', 'lisa')">${libro.lettoLisa ? '✓' : '○'} Lisa</button>
+    </div>
+</div>                <p style="margin-bottom: 8px;"><strong>In vendita:</strong> ${libro.vendere ? 'Sì' : 'No'}</p>
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <button class="btn-salva-libro" style="margin-top:0;" onclick="apriFormModifica('${libro.id}')">✏️ Modifica</button>
                     <button class="btn-elimina" style="margin-top:0;" onclick="eliminaLibro('${libro.id}')">🗑️ Elimina</button>
